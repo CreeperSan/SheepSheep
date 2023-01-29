@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@color/black"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/avatarIV"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:src="@drawable/ic_face_white_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/nameLabelTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="名字："
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@id/avatarIV"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/nameET"
+            android:layout_width="144dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/nameLabelTV"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/nameLabelTV"
+            app:layout_constraintTop_toTopOf="@id/nameLabelTV" />
+
+        <TextView
+            android:id="@+id/birthdayLabelTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="生日："
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/nameLabelTV"
+            app:layout_constraintStart_toStartOf="@id/nameLabelTV"/>
+
+        <TextView
+            android:id="@+id/birthdayTV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="6月19日"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintTop_toTopOf="@id/birthdayLabelTV"
+            app:layout_constraintBottom_toBottomOf="@id/birthdayLabelTV"
+            app:layout_constraintEnd_toEndOf="@id/nameET"
+            app:layout_constraintStart_toEndOf="@id/birthdayLabelTV"/>
+
+        <TextView
+            android:id="@+id/locationLabelTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="地区："
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/birthdayLabelTV"
+            app:layout_constraintStart_toStartOf="@id/nameLabelTV"/>
+
+        <TextView
+            android:id="@+id/locationTV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="广东"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintTop_toTopOf="@id/locationLabelTV"
+            app:layout_constraintBottom_toBottomOf="@id/locationLabelTV"
+            app:layout_constraintEnd_toEndOf="@id/nameET"
+            app:layout_constraintStart_toEndOf="@id/locationLabelTV"/>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/profileBarrier"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="locationTV,avatarIV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
+            android:id="@+id/sheepIV"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/profileBarrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:src="@mipmap/ic_award_sheep4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/saveBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/selector_menu_button"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="保存"
+            android:focusable="true"
+            android:clickable="true"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:layout_marginBottom="36dp"
+            app:layout_constraintTop_toBottomOf="@id/sheepIV"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <ImageView
+        android:id="@+id/closeBtn"
+        android:layout_gravity="top|end"
+        android:background="#FF00FF"
+        android:src="@drawable/ic_setting_white_24"
+        android:layout_width="32dp"
+        android:layout_height="32dp"/>
+
+</FrameLayout>
