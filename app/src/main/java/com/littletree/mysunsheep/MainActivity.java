@@ -45,7 +45,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     ViewDataBinding binding;
-    List<ObjectAnimator> animList;
 
     private List<GrassView> GrassViewList;  //草list
     private List<Integer[]> mGrasslocationList;  //草坐标列表
@@ -68,51 +67,11 @@ public class MainActivity extends AppCompatActivity {
         MMKV.initialize(this);
         GrassViewList = new ArrayList<>();
         mGrasslocationList = new ArrayList<>();
-        animList = new ArrayList<>();
         awardSheepRescoureList = new ArrayList<>();
         initAwardSheepRescoure();
         initGrassView();
-        inittitle();
         initBeepSound();
         initViewModel();
-        findViewById(R.id.Tv_start).setOnClickListener(new NoFastClickListener() {
-            @Override
-            protected void onSingleClick() {
-                startActivity(new Intent(MainActivity.this,GameActivity.class));
-            }
-        });
-
-        findViewById(R.id.testBtn).setOnClickListener(view -> {
-//            AccountRepository.register(String.valueOf(System.currentTimeMillis()), "123", "123").subscribe(result -> {
-//                System.currentTimeMillis();
-//            }, throwable -> {
-//                throwable.printStackTrace();
-//            });
-
-//            AccountRepository.login("1674964317896", "123").subscribe(result -> {
-//                System.currentTimeMillis();
-//            }, throwable -> {
-//                throwable.printStackTrace();
-//            });
-
-//            AccountRepository.updateNickname("1674964317896", "新的昵称").subscribe(result -> {
-//                System.currentTimeMillis();
-//            }, throwable -> {
-//               throwable.printStackTrace();
-//            });
-
-//            AccountRepository.updateHighScore("1674964317896", 18).subscribe(result -> {
-//                System.currentTimeMillis();
-//            }, throwable -> {
-//               throwable.printStackTrace();
-//            });
-
-            AccountRepository.getHighScoreRankList().subscribe(result -> {
-                System.currentTimeMillis();
-            }, throwable -> {
-               throwable.printStackTrace();
-            });
-        });
 
         //通关在首页增加一只
         LiveEventBus.get("succeed", Boolean.class)
@@ -168,19 +127,6 @@ public class MainActivity extends AppCompatActivity {
             animation.setAnimationListener(new ReStartAnimationListener());
             grassView.startAnimation(animation);
         }
-    }
-
-    private void inittitle(){
-        ImageView ivTitle = new ImageView(MainActivity.this);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(PUtil.dip2px(this,400), PUtil.dip2px(this,240));
-        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        layoutParams.topMargin = PUtil.dip2px(this,40);
-        ivTitle.setLayoutParams(layoutParams);
-        ((RelativeLayout)findViewById(R.id.rl)).addView(ivTitle);
-
-        Glide.with(this)
-                .load(R.mipmap.ic_title)
-                .into(ivTitle);
     }
 
     private void initBeepSound() {
@@ -257,71 +203,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startAnim(){
-        for (int i = 0; i < 7; i++) {
-            int size = 0;
-            int recoures = 0;
-            int runTime = 0;
-            switch (i){
-                case 0:
-                    size = 220;
-                    recoures = R.mipmap.ic_gif1;
-                    runTime = 8000;
-                    break;
-                case 1:
-                    size = 80;
-                    recoures = R.mipmap.ic_gif2;
-                    runTime = 7000;
-                    break;
-                case 2:
-                    size = 80;
-                    recoures = R.mipmap.ic_gif3;
-                    runTime = 7000;
-                    break;
-                case 3:
-                    size = 100;
-                    recoures = R.mipmap.ic_gif4;
-                    runTime = 7000;
-                    break;
-                case 4:
-                    size = 130;
-                    recoures = R.mipmap.ic_gif5;
-                    runTime = 6000;
-                    break;
-                case 5:
-                    size = 110;
-                    recoures = R.mipmap.ic_gif6;
-                    runTime = 6000;
-                    break;
-                case 6:
-                    size = 110;
-                    recoures = R.mipmap.ic_gif7;
-                    runTime = 6000;
-                    break;
-            }
-
-            ImageView iv = new ImageView(MainActivity.this);
-            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(PUtil.dip2px(this, size), PUtil.dip2px(this, size));
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-            layoutParams.leftMargin = -PUtil.dip2px(this, size);
-            layoutParams.bottomMargin = PUtil.getScreenH(this)/2-PUtil.dip2px(this,220/2);
-            iv.setLayoutParams(layoutParams);
-            ((RelativeLayout)findViewById(R.id.rl)).addView(iv);
-
-            Glide.with(this)
-                    .load(recoures)
-                    .into(iv);
-
-            ObjectAnimator animator = ObjectAnimator.ofFloat(iv, "translationX", -PUtil.dip2px(this, size), PUtil.getScreenW(this)+PUtil.dip2px(this, size)*2);
-            animator.setDuration(runTime);
-            animator.setInterpolator(new LinearInterpolator());
-            animator.setRepeatCount(ValueAnimator.INFINITE);
-            animator.setRepeatMode(ValueAnimator.RESTART);
-            animator.setStartDelay(i *300);
-
-            animator.start();
-
-            animList.add(animator);
-        }
 
         //以获取的战利品羊gif
         listSucceednum = MMKV.defaultMMKV().decodeInt("specialSheepListNum");
@@ -411,9 +292,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.i("孙", "onStop: ");
-        for (ObjectAnimator objectAnimator : animList) {
-            objectAnimator.pause();
-        }
         intent.putExtra("action","pause");
         startService(intent);
     }
@@ -422,22 +300,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.i("孙", "onResume: ");
-        if (animList.size()>0){
-            for (ObjectAnimator objectAnimator : animList) {
-                objectAnimator.resume();
-            }
-        }else {
-            startAnim();
-        }
+        startAnim();
         intent.putExtra("action","resume");
         startService(intent);
     }
 
     @Override
     protected void onDestroy() {
-        for (ObjectAnimator objectAnimator : animList) {
-            objectAnimator.cancel();
-        }
         for (GrassView grassView : GrassViewList) {
             grassView.getAnimation().cancel();
         }

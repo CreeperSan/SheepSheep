@@ -10,24 +10,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#cffb99">
 
-    <com.littletree.mysunsheep.customview.MyWaveView
-        android:id="@+id/Tv_start"
-        android:layout_width="140dp"
-        android:layout_height="70dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="?android:attr/selectableItemBackground"
-        android:layout_marginBottom="20dp"
-        app:text="开始游戏"
-        app:color="@color/black"
-        app:textSize="22dp"/>
-
-    <Button
-        android:id="@+id/testBtn"
-        android:text="test button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
     <FrameLayout
         android:id="@+id/fragmentLayout"
         android:layout_width="match_parent"

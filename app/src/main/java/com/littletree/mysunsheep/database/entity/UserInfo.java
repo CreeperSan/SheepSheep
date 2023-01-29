@@ -1,5 +1,7 @@
 package com.littletree.mysunsheep.database.entity;
 
+import android.text.TextUtils;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Index;
@@ -40,5 +42,11 @@ public class UserInfo {
     @ColumnInfo(name = "location")
     public String location = "";
 
+    public String getDisplayName() {
+        if (TextUtils.isEmpty(nickname)) {
+            return username;
+        }
+        return nickname;
+    }
 
 }

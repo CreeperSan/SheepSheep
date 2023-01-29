@@ -40,6 +40,7 @@
         app:layout_constraintTop_toBottomOf="@id/sheepIv">
 
         <EditText
+            android:text="123"
             android:id="@+id/usernameET"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -63,6 +64,7 @@
             app:layout_constraintTop_toTopOf="@id/usernameET" />
 
         <EditText
+            android:text="123"
             android:id="@+id/passwordET"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
