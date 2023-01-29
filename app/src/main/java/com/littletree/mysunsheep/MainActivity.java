@@ -2,7 +2,9 @@ package com.littletree.mysunsheep;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -18,10 +20,23 @@ import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
 import com.jeremyliao.liveeventbus.LiveEventBus;
+import com.littletree.mysunsheep.activity.BaseFragment;
+import com.littletree.mysunsheep.activity.main.fragment.BaseMainFragment;
+import com.littletree.mysunsheep.activity.main.fragment.MainLevelSelectFragment;
+import com.littletree.mysunsheep.activity.main.fragment.MainLoginFragment;
+import com.littletree.mysunsheep.activity.main.fragment.MainMenuFragment;
+import com.littletree.mysunsheep.activity.main.fragment.MainRankFragment;
+import com.littletree.mysunsheep.activity.main.fragment.MainRegisterFragment;
+import com.littletree.mysunsheep.activity.main.viewmodel.MainViewModel;
+import com.littletree.mysunsheep.activity.main.viewstate.BaseMainViewState;
+import com.littletree.mysunsheep.activity.main.viewstate.MainLevelSelectViewState;
+import com.littletree.mysunsheep.activity.main.viewstate.MainLoginViewState;
+import com.littletree.mysunsheep.activity.main.viewstate.MainMenuViewState;
+import com.littletree.mysunsheep.activity.main.viewstate.MainRankViewState;
+import com.littletree.mysunsheep.activity.main.viewstate.MainRegisterViewState;
 import com.littletree.mysunsheep.customview.GrassView;
 import com.littletree.mysunsheep.customview.NoFastClickListener;
-import com.littletree.mysunsheep.customview.PlayVoice;
-import com.littletree.mysunsheep.databinding.ActivityMainBinding;
+import com.littletree.mysunsheep.repository.AccountRepository;
 import com.littletree.mysunsheep.utils.PUtil;
 import com.tencent.mmkv.MMKV;
 
@@ -29,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    ActivityMainBinding binding;
+    ViewDataBinding binding;
     List<ObjectAnimator> animList;
 
     private List<GrassView> GrassViewList;  //草list
@@ -39,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
     private List<Integer> awardSheepRescoureList; //通关羊gif
     private Intent intent;
     private int listSucceednum;  //通关羊数量
+
+    private BaseFragment currentFragment;
+
+    private MainViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +74,44 @@ public class MainActivity extends AppCompatActivity {
         initGrassView();
         inittitle();
         initBeepSound();
-        binding.TvStart.setOnClickListener(new NoFastClickListener() {
+        initViewModel();
+        findViewById(R.id.Tv_start).setOnClickListener(new NoFastClickListener() {
             @Override
             protected void onSingleClick() {
                 startActivity(new Intent(MainActivity.this,GameActivity.class));
             }
+        });
+
+        findViewById(R.id.testBtn).setOnClickListener(view -> {
+//            AccountRepository.register(String.valueOf(System.currentTimeMillis()), "123", "123").subscribe(result -> {
+//                System.currentTimeMillis();
+//            }, throwable -> {
+//                throwable.printStackTrace();
+//            });
+
+//            AccountRepository.login("1674964317896", "123").subscribe(result -> {
+//                System.currentTimeMillis();
+//            }, throwable -> {
+//                throwable.printStackTrace();
+//            });
+
+//            AccountRepository.updateNickname("1674964317896", "新的昵称").subscribe(result -> {
+//                System.currentTimeMillis();
+//            }, throwable -> {
+//               throwable.printStackTrace();
+//            });
+
+//            AccountRepository.updateHighScore("1674964317896", 18).subscribe(result -> {
+//                System.currentTimeMillis();
+//            }, throwable -> {
+//               throwable.printStackTrace();
+//            });
+
+            AccountRepository.getHighScoreRankList().subscribe(result -> {
+                System.currentTimeMillis();
+            }, throwable -> {
+               throwable.printStackTrace();
+            });
         });
 
         //通关在首页增加一只
@@ -74,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                         layoutParams.leftMargin = (int) (PUtil.getScreenW(MainActivity.this)/2 - PUtil.dip2px(MainActivity.this, 50) - Math.random()*PUtil.dip2px(MainActivity.this, 160) + PUtil.dip2px(MainActivity.this, 80));
                         layoutParams.bottomMargin = (int) (PUtil.getScreenH(MainActivity.this)/5 - Math.random()*PUtil.dip2px(MainActivity.this, 60) + PUtil.dip2px(MainActivity.this, 30));
                         iv.setLayoutParams(layoutParams);
-                        binding.rl.addView(iv);
+                        ((RelativeLayout)findViewById(R.id.rl)).addView(iv);
 
                         Glide.with(MainActivity.this)
                                 .load(awardSheepRescoureList.get(listSucceednum-1))
@@ -91,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
                         startService(intent);
                     }
                 });
+
+        currentFragment = new MainLoginFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.fragmentLayout, currentFragment).commit();
     }
 
     private void initGrassView(){
@@ -104,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             layoutParams.topMargin = integers[1];
             grassView.setLayoutParams(layoutParams);
             GrassViewList.add(grassView);
-            binding.rl.addView(grassView);
+            ((RelativeLayout)findViewById(R.id.rl)).addView(grassView);
         }
 
         //抖动
@@ -121,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
         layoutParams.topMargin = PUtil.dip2px(this,40);
         ivTitle.setLayoutParams(layoutParams);
-        binding.rl.addView(ivTitle);
+        ((RelativeLayout)findViewById(R.id.rl)).addView(ivTitle);
 
         Glide.with(this)
                 .load(R.mipmap.ic_title)
@@ -133,6 +188,72 @@ public class MainActivity extends AppCompatActivity {
         intent = new Intent(this,MyIntentService.class);
         intent.putExtra("action","play");
         startService(intent);
+    }
+
+
+    public MainViewModel getViewModel() {
+        if (mViewModel == null) {
+            mViewModel = new ViewModelProvider(this).get(MainViewModel.class);;
+        }
+        return mViewModel;
+    }
+
+    private void initViewModel() {
+        getViewModel().getViewState().observe(this, tmpViewState -> {
+            BaseMainViewState viewState = tmpViewState == null ? new MainLoginViewState() : tmpViewState;
+
+            if (viewState instanceof MainLevelSelectViewState) {
+                MainLevelSelectViewState levelSelectViewState = (MainLevelSelectViewState) viewState;
+                if (!(currentFragment instanceof MainLevelSelectFragment)) {
+                    MainLevelSelectFragment replaceFragment = new MainLevelSelectFragment();
+                    replaceFragment.refreshViewState(levelSelectViewState);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragmentLayout, replaceFragment).commitNow();
+                    currentFragment = replaceFragment;
+                } else {
+                    ((MainLevelSelectFragment) currentFragment).refreshViewState(levelSelectViewState);
+                }
+            } else if (viewState instanceof MainLoginViewState) {
+                MainLoginViewState loginViewState = (MainLoginViewState) viewState;
+                if (!(currentFragment instanceof MainLoginFragment)) {
+                    MainLoginFragment replaceFragment = new MainLoginFragment();
+                    replaceFragment.refreshViewState(loginViewState);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragmentLayout, replaceFragment).commitNow();
+                    currentFragment = replaceFragment;
+                } else {
+                    ((MainLoginFragment) currentFragment).refreshViewState(loginViewState);
+                }
+            } else if (viewState instanceof MainMenuViewState) {
+                MainMenuViewState menuViewState = (MainMenuViewState) viewState;
+                if (!(currentFragment instanceof MainMenuFragment)) {
+                    MainMenuFragment replaceFragment = new MainMenuFragment();
+                    replaceFragment.refreshViewState(menuViewState);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragmentLayout, replaceFragment).commitNow();
+                    currentFragment = replaceFragment;
+                } else {
+                    ((MainMenuFragment) currentFragment).refreshViewState(menuViewState);
+                }
+            } else if (viewState instanceof MainRankViewState) {
+                MainRankViewState rankViewState = (MainRankViewState) viewState;
+                if (!(currentFragment instanceof MainRankFragment)) {
+                    MainRankFragment replaceFragment = new MainRankFragment();
+                    replaceFragment.refreshViewState(rankViewState);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragmentLayout, replaceFragment).commitNow();
+                    currentFragment = replaceFragment;
+                } else {
+                    ((MainRankFragment) currentFragment).refreshViewState(rankViewState);
+                }
+            } else if (viewState instanceof MainRegisterViewState) {
+                MainRegisterViewState registerViewState = (MainRegisterViewState) viewState;
+                if (!(currentFragment instanceof MainRegisterFragment)) {
+                    MainRegisterFragment replaceFragment = new MainRegisterFragment();
+                    replaceFragment.refreshViewState(registerViewState);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragmentLayout, replaceFragment).commitNow();
+                    currentFragment = replaceFragment;
+                } else {
+                    ((MainRegisterFragment) currentFragment).refreshViewState(registerViewState);
+                }
+            }
+        });
     }
 
     private void startAnim(){
@@ -184,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
             layoutParams.leftMargin = -PUtil.dip2px(this, size);
             layoutParams.bottomMargin = PUtil.getScreenH(this)/2-PUtil.dip2px(this,220/2);
             iv.setLayoutParams(layoutParams);
-            binding.rl.addView(iv);
+            ((RelativeLayout)findViewById(R.id.rl)).addView(iv);
 
             Glide.with(this)
                     .load(recoures)
@@ -216,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
                 layoutParams.leftMargin = (int) (PUtil.getScreenW(this)/2 - PUtil.dip2px(this, 50) - Math.random()*PUtil.dip2px(this, 160) + PUtil.dip2px(this, 80));
                 layoutParams.bottomMargin = (int) (PUtil.getScreenH(this)/5 - Math.random()*PUtil.dip2px(this, 60) + PUtil.dip2px(this, 30));
                 iv.setLayoutParams(layoutParams);
-                binding.rl.addView(iv);
+                ((RelativeLayout)findViewById(R.id.rl)).addView(iv);
 
                 Glide.with(this)
                         .load(recoures)
