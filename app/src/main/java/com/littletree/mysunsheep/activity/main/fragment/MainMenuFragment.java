@@ -19,6 +19,7 @@ import com.littletree.mysunsheep.activity.main.dialog.MainProfileDialog;
 import com.littletree.mysunsheep.activity.main.dialog.MainSettingDialog;
 import com.littletree.mysunsheep.activity.main.viewmodel.MainViewModel;
 import com.littletree.mysunsheep.activity.main.viewstate.MainMenuViewState;
+import com.littletree.mysunsheep.audio.AudioController;
 import com.littletree.mysunsheep.customview.NoFastClickListener;
 import com.littletree.mysunsheep.databinding.FragmentMainMenuBinding;
 
@@ -75,7 +76,7 @@ public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
         });
 
         binding.head.soundBtn.setOnClickListener(v -> {
-
+            AudioController.instance.toggleMute();
         });
 
         binding.head.settingBtn.setOnClickListener(v -> {
@@ -84,6 +85,8 @@ public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
             MainSettingDialog settingDialog = new MainSettingDialog(context);
             settingDialog.show();
         });
+
+        binding.head.settingBtn.setVisibility(View.GONE);
 
     }
 

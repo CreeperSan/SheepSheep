@@ -119,4 +119,14 @@ public class AudioController {
         }
     }
 
+    public boolean toggleMute() {
+        if (volume > 0) {
+            mute();
+        } else {
+            unmute();
+        }
+
+        return volume > 0;
+    }
+
 }
