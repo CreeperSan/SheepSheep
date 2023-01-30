@@ -5,9 +5,13 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import com.littletree.mysunsheep.R;
+import com.littletree.mysunsheep.audio.AudioController;
+import com.littletree.mysunsheep.common.SheepSchedulers;
 import com.littletree.mysunsheep.database.DatabaseManager;
+import com.littletree.mysunsheep.exception.InitializeErrorException;
 import com.littletree.mysunsheep.route.SheepRoute;
 
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 
 public class SplashActivity extends BaseActivity{
@@ -19,7 +23,15 @@ public class SplashActivity extends BaseActivity{
         setContentView(R.layout.activity_splash);
 
 
-        Disposable disposable = DatabaseManager.instance.init().subscribe(result -> {
+        Disposable disposable = Observable.just(0).observeOn(SheepSchedulers.io).concatMap(val -> {
+            return DatabaseManager.instance.init();
+        }).doOnError((throwable -> {
+            throw new InitializeErrorException("数据库初始化失败", throwable);
+        })).concatMap(val -> {
+            return AudioController.instance.init();
+        }).doOnError((throwable -> {
+            throw new InitializeErrorException("音频初始化失败", throwable);
+        })).observeOn(SheepSchedulers.ui).subscribe(result -> {
             if (result) {
                 SheepRoute.toMain(SplashActivity.this);
                 finish();
@@ -27,8 +39,7 @@ public class SplashActivity extends BaseActivity{
                 toast("初始化失败");
             }
         }, throwable -> {
-            throwable.printStackTrace();
-            toast("初始化异常");
+            toast("初始化异常，" + throwable.getMessage());
         });
     }
 }
