@@ -22,9 +22,13 @@ import com.littletree.mysunsheep.activity.main.viewstate.MainMenuViewState;
 import com.littletree.mysunsheep.audio.AudioController;
 import com.littletree.mysunsheep.customview.NoFastClickListener;
 import com.littletree.mysunsheep.databinding.FragmentMainMenuBinding;
+import com.littletree.mysunsheep.pref.PrefManager;
+import com.littletree.mysunsheep.pref.PrefUpdateListener;
 
 public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
     private FragmentMainMenuBinding binding;
+
+    private PrefUpdateListener<Boolean> mutePrefListener;
 
     @Nullable
     @Override
@@ -40,11 +44,7 @@ public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
         binding.startBtn.setOnClickListener(new ViewModelClickListener() {
             @Override
             public void onClick(MainViewModel viewModel) {
-                Activity activity = getActivity();
-                if (activity == null) {
-                    return;
-                }
-                viewModel.toGame(activity);
+                viewModel.toLevelSelect();
             }
         });
 
@@ -88,6 +88,26 @@ public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
 
         binding.head.settingBtn.setVisibility(View.GONE);
 
+        // 音效按钮
+        mutePrefListener = value -> refreshMuteButton(binding.head.soundBtn);
+        refreshMuteButton(binding.head.soundBtn);
+        binding.head.soundBtn.setOnClickListener(v -> {
+            boolean newMuteState = AudioController.instance.toggleMute();
+            PrefManager.instance.setMute(newMuteState);
+            refreshMuteButton(binding.head.soundBtn);
+        });
+        PrefManager.instance.addMuteChangeListener(mutePrefListener);
+
+        // 设置按钮
+        binding.head.settingBtn.setVisibility(View.GONE);
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        PrefManager.instance.removeMuteChangeListener(mutePrefListener);
     }
 
     @Override

@@ -15,7 +15,7 @@ public class PrefManager {
     private final static String PREF_CONFIG = "config";
     private final static String KEY_IS_MUTE = "is_mute";
 
-    private static PrefManager instance = new PrefManager();
+    public static PrefManager instance = new PrefManager();
 
     private PrefManager() { }
 
@@ -25,8 +25,11 @@ public class PrefManager {
 
     public Observable<Boolean> init() {
         return Observable.just(0).observeOn(SheepSchedulers.io).map(val -> {
+            // 数据读取
             prefs = SheepApplication.instance.getSharedPreferences(PREF_CONFIG, Context.MODE_PRIVATE);
-
+            return true;
+        }).observeOn(SheepSchedulers.ui).map(val -> {
+            // 变化监听
             prefs.registerOnSharedPreferenceChangeListener((sp, key) -> {
                 switch (key) {
                     case KEY_IS_MUTE: {
@@ -37,9 +40,8 @@ public class PrefManager {
                     }
                 }
             });
-
             return true;
-        }).observeOn(SheepSchedulers.ui);
+        });
     }
 
     public boolean isMute() {
@@ -47,7 +49,7 @@ public class PrefManager {
     }
 
     public void setMute(boolean isMute) {
-        prefs.edit().putBoolean(KEY_IS_MUTE, isMute).apply();
+        prefs.edit().putBoolean(KEY_IS_MUTE, isMute).commit();
     }
 
     public void addMuteChangeListener(PrefUpdateListener<Boolean> listener) {

@@ -34,6 +34,7 @@ import com.littletree.mysunsheep.activity.main.viewstate.MainLoginViewState;
 import com.littletree.mysunsheep.activity.main.viewstate.MainMenuViewState;
 import com.littletree.mysunsheep.activity.main.viewstate.MainRankViewState;
 import com.littletree.mysunsheep.activity.main.viewstate.MainRegisterViewState;
+import com.littletree.mysunsheep.audio.AudioController;
 import com.littletree.mysunsheep.customview.GrassView;
 import com.littletree.mysunsheep.customview.NoFastClickListener;
 import com.littletree.mysunsheep.repository.AccountRepository;
@@ -51,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
     private int grassNum = 28;  //草的数量
 
     private List<Integer> awardSheepRescoureList; //通关羊gif
-    private Intent intent;
     private int listSucceednum;  //通关羊数量
 
     private BaseFragment currentFragment;
@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         awardSheepRescoureList = new ArrayList<>();
         initAwardSheepRescoure();
         initGrassView();
-        initBeepSound();
         initViewModel();
 
         //通关在首页增加一只
@@ -98,13 +97,15 @@ public class MainActivity extends AppCompatActivity {
                 .observe(this, new Observer<Boolean>() {
                     @Override
                     public void onChanged(Boolean boo) {
-                        intent.putExtra("action","resume");
-                        startService(intent);
+                        AudioController.instance.resumeBackground();
                     }
                 });
 
         currentFragment = new MainLoginFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.fragmentLayout, currentFragment).commit();
+
+
+        AudioController.instance.playBackground(AudioController.BACKGROUND_MENU);
     }
 
     private void initGrassView(){
@@ -127,13 +128,6 @@ public class MainActivity extends AppCompatActivity {
             animation.setAnimationListener(new ReStartAnimationListener());
             grassView.startAnimation(animation);
         }
-    }
-
-    private void initBeepSound() {
-        // 启动服务播放背景音乐
-        intent = new Intent(this,MyIntentService.class);
-        intent.putExtra("action","play");
-        startService(intent);
     }
 
 
@@ -288,21 +282,11 @@ public class MainActivity extends AppCompatActivity {
         awardSheepRescoureList.add(R.mipmap.ic_award_sheep19);
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i("孙", "onStop: ");
-        intent.putExtra("action","pause");
-        startService(intent);
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i("孙", "onResume: ");
         startAnim();
-        intent.putExtra("action","resume");
-        startService(intent);
     }
 
     @Override
@@ -310,9 +294,9 @@ public class MainActivity extends AppCompatActivity {
         for (GrassView grassView : GrassViewList) {
             grassView.getAnimation().cancel();
         }
-        //停止服务
-        stopService(intent);
 
         super.onDestroy();
+
+        AudioController.instance.pauseBackground();
     }
 }

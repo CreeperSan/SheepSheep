@@ -8,6 +8,7 @@ import android.media.SoundPool;
 import com.littletree.mysunsheep.R;
 import com.littletree.mysunsheep.application.SheepApplication;
 import com.littletree.mysunsheep.common.SheepSchedulers;
+import com.littletree.mysunsheep.pref.PrefManager;
 
 import java.io.IOException;
 
@@ -25,7 +26,7 @@ public class AudioController {
 
     private AudioController() { }
 
-    private float volume = 1f;
+    private float volume = 0f;
 
     private MediaPlayer mediaPlayer;
     private SoundPool soundPool;
@@ -37,12 +38,14 @@ public class AudioController {
      */
     public Observable<Boolean> init() {
         return Observable.just(0).observeOn(SheepSchedulers.io).map(val -> {
+            // 配置
+            volume = PrefManager.instance.isMute() ? 0f : 1f;
             // 初始化背景音乐
             mediaPlayer = new MediaPlayer();
             mediaPlayer.reset();
             mediaPlayer.setLooping(true);
-            BACKGROUND_MENU = SheepApplication.instance.getResources().openRawResourceFd(R.raw.voice_background);
-            BACKGROUND_GAME = SheepApplication.instance.getResources().openRawResourceFd(R.raw.voice_background);
+            BACKGROUND_MENU = SheepApplication.instance.getResources().openRawResourceFd(R.raw.background_menu);
+            BACKGROUND_GAME = SheepApplication.instance.getResources().openRawResourceFd(R.raw.background_game);
             // 初始化音效
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_GAME)
@@ -52,9 +55,9 @@ public class AudioController {
                     .setAudioAttributes(audioAttributes)
                     .setMaxStreams(5)
                     .build();
-            SOUND_CLICK = soundPool.load(SheepApplication.instance, R.raw.voice_click, 1);
-            SOUND_COMPLETE = soundPool.load(SheepApplication.instance, R.raw.voice_click, 1);
-            SOUND_FAIL = soundPool.load(SheepApplication.instance, R.raw.voice_click, 1);
+            SOUND_CLICK = soundPool.load(SheepApplication.instance, R.raw.effect_click, 1);
+            SOUND_COMPLETE = soundPool.load(SheepApplication.instance, R.raw.effect_complete, 1);
+            SOUND_FAIL = soundPool.load(SheepApplication.instance, R.raw.effect_fail, 1);
             // 返回结果
             return true;
         }).observeOn(SheepSchedulers.ui);
@@ -120,13 +123,17 @@ public class AudioController {
     }
 
     public boolean toggleMute() {
-        if (volume > 0) {
-            mute();
-        } else {
+        if (isMute()) {
             unmute();
+        } else {
+            mute();
         }
 
-        return volume > 0;
+        return isMute();
+    }
+
+    public boolean isMute() {
+        return volume <= 0;
     }
 
 }

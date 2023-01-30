@@ -9,6 +9,7 @@ import com.littletree.mysunsheep.audio.AudioController;
 import com.littletree.mysunsheep.common.SheepSchedulers;
 import com.littletree.mysunsheep.database.DatabaseManager;
 import com.littletree.mysunsheep.exception.InitializeErrorException;
+import com.littletree.mysunsheep.pref.PrefManager;
 import com.littletree.mysunsheep.route.SheepRoute;
 
 import io.reactivex.rxjava3.core.Observable;
@@ -24,6 +25,10 @@ public class SplashActivity extends BaseActivity{
 
 
         Disposable disposable = Observable.just(0).observeOn(SheepSchedulers.io).concatMap(val -> {
+            return PrefManager.instance.init();
+        }).doOnError(throwable -> {
+            throw new InitializeErrorException("配置初始化失败", throwable);
+        }).concatMap(val -> {
             return DatabaseManager.instance.init();
         }).doOnError((throwable -> {
             throw new InitializeErrorException("数据库初始化失败", throwable);
@@ -39,6 +44,7 @@ public class SplashActivity extends BaseActivity{
                 toast("初始化失败");
             }
         }, throwable -> {
+            throwable.printStackTrace();
             toast("初始化异常，" + throwable.getMessage());
         });
     }

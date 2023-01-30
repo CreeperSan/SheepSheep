@@ -8,10 +8,11 @@ import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
 import com.littletree.mysunsheep.R;
+import com.littletree.mysunsheep.activity.BaseDialog;
 import com.littletree.mysunsheep.database.entity.UserInfo;
 import com.littletree.mysunsheep.databinding.DialogProfileBinding;
 
-public class MainProfileDialog extends Dialog {
+public class MainProfileDialog extends BaseDialog {
     private DialogProfileBinding binding;
 
     private UserInfo userInfo;

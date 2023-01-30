@@ -13,11 +13,16 @@ import com.littletree.mysunsheep.activity.BaseFragment;
 import com.littletree.mysunsheep.activity.main.adapter.MainRankAdapter;
 import com.littletree.mysunsheep.activity.main.viewmodel.MainViewModel;
 import com.littletree.mysunsheep.activity.main.viewstate.MainRankViewState;
+import com.littletree.mysunsheep.audio.AudioController;
 import com.littletree.mysunsheep.databinding.FragmentMainRankBinding;
+import com.littletree.mysunsheep.pref.PrefManager;
+import com.littletree.mysunsheep.pref.PrefUpdateListener;
 
 public class MainRankFragment extends BaseMainFragment<MainRankViewState> {
 
     private FragmentMainRankBinding binding;
+
+    private PrefUpdateListener<Boolean> mutePrefListener;
 
     private MainRankAdapter adapter;
 
@@ -39,8 +44,28 @@ public class MainRankFragment extends BaseMainFragment<MainRankViewState> {
             }
         });
 
+        // 音效按钮
+        mutePrefListener = value -> refreshMuteButton(binding.head.soundBtn);
+        refreshMuteButton(binding.head.soundBtn);
+        binding.head.soundBtn.setOnClickListener(v -> {
+            boolean newMuteState = AudioController.instance.toggleMute();
+            PrefManager.instance.setMute(newMuteState);
+            refreshMuteButton(binding.head.soundBtn);
+        });
+        PrefManager.instance.addMuteChangeListener(mutePrefListener);
+
+        // 设置按钮
+        binding.head.settingBtn.setVisibility(View.GONE);
+
         adapter = new MainRankAdapter();
         binding.listView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        PrefManager.instance.removeMuteChangeListener(mutePrefListener);
     }
 
     @Override

@@ -123,10 +123,9 @@ public class SheepView extends RelativeLayout {
         rlAlllayout = sheepLayout.findViewById(R.id.rl_alllayout);
         stv_container = sheepLayout.findViewById(R.id.stv_container);
 
-        LayoutParams layoutParams = new LayoutParams(PUtil.dip2px(context,ChessSize*14+10),PUtil.dip2px(context,ChessSize*2+10));
-        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        layoutParams.bottomMargin = PUtil.dip2px(context,20);
+        LayoutParams layoutParams = (RelativeLayout.LayoutParams)stv_container.getLayoutParams();
+        layoutParams.width = PUtil.dip2px(context,ChessSize*14+10);
+        layoutParams.height = PUtil.dip2px(context,ChessSize*2+10);
         stv_container.setLayoutParams(layoutParams);
     }
 
@@ -654,21 +653,13 @@ public class SheepView extends RelativeLayout {
 
     private class ReStartAnimationListener implements Animation.AnimationListener {
         public void onAnimationEnd(Animation animation) {
-            // TODO Auto-generated method stub
             animation.reset();
             animation.setAnimationListener(new ReStartAnimationListener());
             animation.start();
         }
 
-        public void onAnimationRepeat(Animation animation) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void onAnimationStart(Animation animation) {
-            // TODO Auto-generated method stub
-
-        }
+        public void onAnimationRepeat(Animation animation) { }
+        public void onAnimationStart(Animation animation) { }
 
     }
 

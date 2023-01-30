@@ -6,9 +6,10 @@ import android.view.LayoutInflater;
 
 import androidx.annotation.NonNull;
 
+import com.littletree.mysunsheep.activity.BaseDialog;
 import com.littletree.mysunsheep.databinding.DialogSettingBinding;
 
-public class MainSettingDialog extends Dialog {
+public class MainSettingDialog extends BaseDialog {
     private DialogSettingBinding binding;
 
     public MainSettingDialog(@NonNull Context context) {

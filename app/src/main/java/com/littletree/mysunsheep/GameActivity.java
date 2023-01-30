@@ -1,37 +1,32 @@
 package com.littletree.mysunsheep;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.jeremyliao.liveeventbus.LiveEventBus;
+import com.littletree.mysunsheep.audio.AudioController;
 import com.littletree.mysunsheep.customview.AwardView;
 import com.littletree.mysunsheep.customview.NoFastClickListener;
 import com.littletree.mysunsheep.customview.SheepView;
 import com.littletree.mysunsheep.databinding.ActivityGameBinding;
 import com.littletree.mysunsheep.dialog.Dialog_pass;
 import com.littletree.mysunsheep.dialog.Dialog_succeed;
-import com.littletree.mysunsheep.utils.PUtil;
 import com.tencent.mmkv.MMKV;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -45,7 +40,6 @@ import java.util.TimerTask;
  */
 public class GameActivity extends AppCompatActivity {
     ActivityGameBinding binding;
-    TextView tvTitle;
 
     //过关dialog
     Dialog_pass dialog_pass;
@@ -63,17 +57,25 @@ public class GameActivity extends AppCompatActivity {
     private int barrierNum = 1;  //关卡
     SheepView sheepView;
 
-    int clicknum;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_game);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        binding = ActivityGameBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        AudioController.instance.playBackground(AudioController.BACKGROUND_GAME);
+
         initdialog();
         initview();
-        inittitle();
+        initTitle();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        AudioController.instance.playBackground(AudioController.BACKGROUND_MENU);
     }
 
     private void initview(){
@@ -96,7 +98,7 @@ public class GameActivity extends AppCompatActivity {
                         @Override
                         protected void onSingleClick() {
                             dialog_pass.dismiss();
-                            tvTitle.setText("第二关");
+                            refreshTimeText();
                             sheepView.setBarrierNum(barrierNum,0);
                         }
                     });
@@ -152,9 +154,15 @@ public class GameActivity extends AppCompatActivity {
                     @Override
                     public void onChanged(Integer num) {
                         sheepView.setBarrierNum(2,num);
-                        clicknum = 0;
                     }
                 });
+    }
+
+    private void refreshTimeText() {
+        Calendar calendar = Calendar.getInstance();
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        binding.titleTV.setText("- "+month+"月"+day+"日"+" -");
     }
 
     @Override
@@ -163,32 +171,17 @@ public class GameActivity extends AppCompatActivity {
         LiveEventBus.get("GameOnresume").post(true);
     }
 
-    private void inittitle(){
-        tvTitle = new TextView(GameActivity.this);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(PUtil.dip2px(this,160), PUtil.dip2px(this,100));
-        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        layoutParams.topMargin = PUtil.dip2px(this,40);
-        tvTitle.setLayoutParams(layoutParams);
-        tvTitle.setTextSize(18);
-        tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        tvTitle.setTextColor(Color.BLACK);
-        tvTitle.setGravity(Gravity.CENTER);
-        if (barrierNum == 1){
-            tvTitle.setText("第一关");
-        }else {
-            tvTitle.setText("第二关");
-        }
+    private void initTitle(){
+        refreshTimeText();
 
-        tvTitle.setOnClickListener(new NoFastClickListener() {
+        binding.titleTV.setOnClickListener(new NoFastClickListener() {
             @Override
             protected void onSingleClick() {
-                clicknum++;
-                if (clicknum>2&&barrierNum == 2){
+                if (barrierNum == 2){
                     startActivity(new Intent(GameActivity.this,SettingActivity.class));
                 }
             }
         });
-        binding.rl.addView(tvTitle);
     }
 
     private void initdialog() {

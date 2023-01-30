@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.littletree.mysunsheep.GameActivity;
 import com.littletree.mysunsheep.activity.main.viewstate.BaseMainViewState;
+import com.littletree.mysunsheep.activity.main.viewstate.MainLevelSelectViewState;
 import com.littletree.mysunsheep.activity.main.viewstate.MainLoginViewState;
 import com.littletree.mysunsheep.activity.main.viewstate.MainMenuViewState;
 import com.littletree.mysunsheep.activity.main.viewstate.MainRankViewState;
@@ -54,6 +55,17 @@ public class MainViewModel extends ViewModel {
 
     public void toGame(@NonNull Activity activity) {
         activity.startActivity(new Intent(activity, GameActivity.class));
+    }
+
+    public void toLevelSelect() {
+        boolean unlockLevel2 = false;
+
+        UserInfo tmpUserInfo = currentUserInfo.getValue();
+        if (tmpUserInfo != null) {
+            unlockLevel2 = tmpUserInfo.reachLevel > 1;
+        }
+
+        viewState.postValue(new MainLevelSelectViewState(unlockLevel2));
     }
 
     Disposable rankLoadDisposable;

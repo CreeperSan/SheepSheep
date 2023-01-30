@@ -1,6 +1,5 @@
 package com.littletree.mysunsheep;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -51,7 +50,7 @@ public class MyIntentService extends Service {
      */
     public void playMusic() {
         if (player == null ) {
-            player= MediaPlayer.create(this,R.raw.voice_background);
+            player= MediaPlayer.create(this,R.raw.background_game);
             //是否循环播放
             player.setLooping(true);
         }

@@ -12,10 +12,15 @@ import com.littletree.mysunsheep.R;
 import com.littletree.mysunsheep.activity.BaseFragment;
 import com.littletree.mysunsheep.activity.main.viewmodel.MainViewModel;
 import com.littletree.mysunsheep.activity.main.viewstate.MainRegisterViewState;
+import com.littletree.mysunsheep.audio.AudioController;
 import com.littletree.mysunsheep.databinding.FragmentMainRegisterBinding;
+import com.littletree.mysunsheep.pref.PrefManager;
+import com.littletree.mysunsheep.pref.PrefUpdateListener;
 
 public class MainRegisterFragment extends BaseMainFragment<MainRegisterViewState> {
     private FragmentMainRegisterBinding binding;
+
+    private PrefUpdateListener<Boolean> mutePrefListener;
 
     @Nullable
     @Override
@@ -47,6 +52,26 @@ public class MainRegisterFragment extends BaseMainFragment<MainRegisterViewState
                 viewModel.toLogin();
             }
         });
+
+        // 音效按钮
+        mutePrefListener = value -> refreshMuteButton(binding.head.soundBtn);
+        refreshMuteButton(binding.head.soundBtn);
+        binding.head.soundBtn.setOnClickListener(v -> {
+            boolean newMuteState = AudioController.instance.toggleMute();
+            PrefManager.instance.setMute(newMuteState);
+            refreshMuteButton(binding.head.soundBtn);
+        });
+        PrefManager.instance.addMuteChangeListener(mutePrefListener);
+
+        // 设置按钮
+        binding.head.settingBtn.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        PrefManager.instance.removeMuteChangeListener(mutePrefListener);
     }
 
     @Override

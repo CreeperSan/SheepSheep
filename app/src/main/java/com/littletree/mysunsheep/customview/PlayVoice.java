@@ -2,7 +2,6 @@ package com.littletree.mysunsheep.customview;
 
 import android.content.Context;
 import android.media.MediaPlayer;
-import android.util.Log;
 
 import com.littletree.mysunsheep.R;
 
@@ -20,7 +19,7 @@ public class PlayVoice {
     public static void playClickVoice(Context context){
         try {
             if (null ==clickMediaPlayer){
-                clickMediaPlayer= MediaPlayer.create(context, R.raw.voice_click);
+                clickMediaPlayer= MediaPlayer.create(context, R.raw.effect_click);
             }
             clickMediaPlayer.start();
         } catch (Exception e) {
