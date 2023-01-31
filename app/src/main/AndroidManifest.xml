@@ -25,12 +25,12 @@
         </activity>
 
         <activity
-            android:name="com.guuda.sheep.MainActivity"
+            android:name="com.guuda.sheep.activity.main.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name="com.guuda.sheep.GameActivity"
+            android:name="com.guuda.sheep.activity.game.GameActivity"
             android:screenOrientation="portrait"/>
 
         <activity

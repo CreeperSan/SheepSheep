@@ -1,4 +1,4 @@
-package com.guuda.sheep;
+package com.guuda.sheep.activity.main;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
+import com.guuda.sheep.R;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.guuda.sheep.activity.BaseFragment;
 import com.guuda.sheep.activity.main.fragment.MainLevelSelectFragment;

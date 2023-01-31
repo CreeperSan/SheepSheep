@@ -7,7 +7,7 @@ import android.widget.ImageView;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
-import com.guuda.sheep.MainActivity;
+import com.guuda.sheep.activity.main.MainActivity;
 import com.guuda.sheep.R;
 import com.guuda.sheep.activity.BaseFragment;
 import com.guuda.sheep.activity.main.viewmodel.MainViewModel;

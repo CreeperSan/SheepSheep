@@ -3,7 +3,7 @@ package com.guuda.sheep.route;
 import android.content.Context;
 import android.content.Intent;
 
-import com.guuda.sheep.MainActivity;
+import com.guuda.sheep.activity.main.MainActivity;
 
 public class SheepRoute {
 

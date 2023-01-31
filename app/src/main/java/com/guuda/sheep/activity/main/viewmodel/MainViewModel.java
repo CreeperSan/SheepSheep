@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.guuda.sheep.GameActivity;
+import com.guuda.sheep.activity.game.GameActivity;
 import com.guuda.sheep.activity.main.viewstate.BaseMainViewState;
 import com.guuda.sheep.activity.main.viewstate.MainLevelSelectViewState;
 import com.guuda.sheep.activity.main.viewstate.MainLoginViewState;

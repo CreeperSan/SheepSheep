@@ -63,7 +63,7 @@ public class SheepView extends RelativeLayout {
     private List<Integer[]> mGrasslocationList;  //草坐标列表
 
     private int barrierNum;  //关卡
-    private MySheepListener mySheepListener;
+    private GameProgressListener gameProgressListener;
 
     public SheepView(Context context,int getBarrierNum) {
         this(context,null,getBarrierNum);
@@ -352,8 +352,8 @@ public class SheepView extends RelativeLayout {
 
                 if (!canClear){
                     if (takeinChessList.size()>6){  //数量为7，即失败
-                        if (null!=mySheepListener){
-                            mySheepListener.failListener();
+                        if (null!= gameProgressListener){
+                            gameProgressListener.onLevelFail();
                         }
                     }
                 }else {
@@ -406,8 +406,8 @@ public class SheepView extends RelativeLayout {
 
                                             //判断上面是否还有，没有即成功
                                             if (showChessList.size() == 0){
-                                                if (null!=mySheepListener){
-                                                    mySheepListener.succeedListener();
+                                                if (null!= gameProgressListener){
+                                                    gameProgressListener.onLevelPass();
                                                 }
                                             }else {
                                                 judgeCanClick(true);
@@ -860,16 +860,12 @@ public class SheepView extends RelativeLayout {
         PlayVoice.destoryVoice();
     }
 
-    public interface MySheepListener{
-        void succeedListener();
-        void failListener();
+    public interface GameProgressListener {
+        void onLevelPass();
+        void onLevelFail();
     }
 
-    public MySheepListener getMySheepListener() {
-        return mySheepListener;
-    }
-
-    public void setMySheepListener(MySheepListener mySheepListener) {
-        this.mySheepListener = mySheepListener;
+    public void setGameProgressListener(GameProgressListener gameProgressListener) {
+        this.gameProgressListener = gameProgressListener;
     }
 }

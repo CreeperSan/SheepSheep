@@ -1,4 +1,4 @@
-package com.guuda.sheep.dialog;
+package com.guuda.sheep.activity.game.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -12,9 +12,9 @@ import com.guuda.sheep.R;
 import com.guuda.sheep.customview.AwardView;
 import com.guuda.sheep.utils.PUtil;
 
-public class Dialog_succeed extends Dialog {
+public class GameCompleteDialog extends Dialog {
 
-    public Dialog_succeed(Context context, int theme) {
+    public GameCompleteDialog(Context context, int theme) {
         super(context, theme);
     }
 
@@ -33,10 +33,10 @@ public class Dialog_succeed extends Dialog {
             this.view_award = view_award;
         }
 
-        public Dialog_succeed create() {
+        public GameCompleteDialog create() {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final Dialog_succeed dialog = new Dialog_succeed(context, R.style.SucceedDialog);
+            final GameCompleteDialog dialog = new GameCompleteDialog(context, R.style.SucceedDialog);
             View layout = inflater.inflate(R.layout.dialog_succeed, null);
             dialog.addContentView(layout, new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT

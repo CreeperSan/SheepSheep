@@ -5,20 +5,15 @@ import android.view.View;
 
 public abstract class NoFastClickListener implements View.OnClickListener {
     private long mLastClickTime;
-    private long timeInterval = 1000L;
 
-    public NoFastClickListener() {
+    private final static long TIME_INTERVAL = 1000L;
 
-    }
-
-    public NoFastClickListener(long interval) {
-        this.timeInterval = interval;
-    }
+    public NoFastClickListener() { }
 
     @Override
     public void onClick(View v) {
         long nowTime = System.currentTimeMillis();
-        if (nowTime - mLastClickTime > timeInterval) {
+        if (nowTime - mLastClickTime > TIME_INTERVAL) {
             // 单次点击事件
             onSingleClick();
             mLastClickTime = nowTime;

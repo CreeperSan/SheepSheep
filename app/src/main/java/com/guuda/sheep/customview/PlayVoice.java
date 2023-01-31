@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 
 import com.guuda.sheep.R;
+import com.guuda.sheep.audio.AudioController;
 
 
 public class PlayVoice {

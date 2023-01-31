@@ -19,25 +19,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @ProjectName: MySunSheep
- * @ClassName: GrassView
- * @Author: littletree
- * @CreateDate: 2022/11/1/001 14:43
  * 会动的小草
  */
 public class GrassView extends View {
-    private Paint mPaint;
-
-    List<PointF> points = new ArrayList<>();
-    private ValueAnimator anim;
+    private final Paint mPaint = new Paint();
 
     public GrassView(Context context) {
         this(context,null);
     }
 
     public GrassView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        initPoints(points);
+        this(context, attrs, 0);
+    }
+
+    public GrassView(Context context, @Nullable AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
     }
 
     @Override
@@ -49,7 +45,6 @@ public class GrassView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mPaint = new Paint();
         mPaint.setColor(Color.parseColor("#639332"));
         mPaint.setAntiAlias(true);//抗锯齿效果
         mPaint.setStrokeWidth(4);
@@ -74,65 +69,6 @@ public class GrassView extends View {
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(mBitmap, 60, 60, true);
         canvas.drawBitmap(scaledBitmap, 0f, 0f, mPaint);
 
-//        PointF pStart, pEnd;
-//
-//        Path path = new Path();
-//        for (int i = 0; i < points.size() - 1; i++) {
-//            pStart = points.get(i);
-//            pEnd = points.get(i + 1);
-//            PointF point3 = new PointF();
-//            PointF point4 = new PointF();
-//            float wd = (pStart.x + pEnd.x) / 2;
-//            point3.x = wd;
-//            point3.y = pStart.y;
-//            point4.x = wd;
-//            point4.y = pEnd.y;
-//            path.moveTo(pStart.x, pStart.y);
-//            path.cubicTo(point3.x, point3.y, point4.x, point4.y, pEnd.x, pEnd.y);
-//            canvas.drawPath(path, mPaint);
-//        }
     }
 
-    private void initPoints(List<PointF> pointList){
-        int num = (int) (Math.round(Math.random() * 4));
-        if (num == 0){
-            pointList.add(new PointF(0,50));
-            pointList.add(new PointF(32,25));
-            pointList.add(new PointF(48,40));
-            pointList.add(new PointF(64,30));
-            pointList.add(new PointF(96,50));
-        }else if (num == 1){
-            pointList.add(new PointF(0,80));
-            pointList.add(new PointF(16,25));
-            pointList.add(new PointF(32,70));
-            pointList.add(new PointF(40,50));
-            pointList.add(new PointF(48,80));
-        }else if (num == 2){
-            pointList.add(new PointF(0,80));
-            pointList.add(new PointF(8,65));
-            pointList.add(new PointF(16,70));
-            pointList.add(new PointF(24,65));
-            pointList.add(new PointF(32,70));
-            pointList.add(new PointF(40,25));
-            pointList.add(new PointF(48,70));
-            pointList.add(new PointF(56,65));
-            pointList.add(new PointF(64,70));
-            pointList.add(new PointF(72,65));
-            pointList.add(new PointF(80,70));
-        }else if (num == 3){
-            pointList.add(new PointF(0,80));
-            pointList.add(new PointF(16,50));
-            pointList.add(new PointF(32,70));
-            pointList.add(new PointF(40,25));
-            pointList.add(new PointF(48,80));
-        }else if (num == 4){
-            pointList.add(new PointF(16,80));
-            pointList.add(new PointF(0,30));
-            pointList.add(new PointF(8,25));
-            pointList.add(new PointF(32,80));
-            pointList.add(new PointF(45,55));
-            pointList.add(new PointF(48,60));
-            pointList.add(new PointF(40,80));
-        }
-    }
 }
