@@ -2,24 +2,20 @@ package com.guuda.sheep.activity.game.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.guuda.sheep.R;
-import com.guuda.sheep.databinding.DialogPassBinding;
+import com.guuda.sheep.databinding.DialogFailBinding;
 
 
-public class GamePassDialog extends Dialog {
-    private DialogPassBinding binding;
+public class GameFailDialog extends Dialog {
+    private DialogFailBinding binding;
     private View.OnClickListener mNextLevelListener;
 
 
-    public GamePassDialog(Context context) {
+    public GameFailDialog(Context context) {
         super(context, R.style.SunDialog);
     }
 
@@ -27,7 +23,7 @@ public class GamePassDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = DialogPassBinding.inflate(LayoutInflater.from(getContext()));
+        binding = DialogFailBinding.inflate(LayoutInflater.from(getContext()));
 
         setContentView(binding.getRoot());
 
@@ -46,7 +42,7 @@ public class GamePassDialog extends Dialog {
         });
     }
 
-    public void setOnNextLevelListener(View.OnClickListener listener) {
+    public void setOnBackListener(View.OnClickListener listener) {
         mNextLevelListener = listener;
     }
 

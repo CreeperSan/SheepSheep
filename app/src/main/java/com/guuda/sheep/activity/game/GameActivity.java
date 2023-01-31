@@ -6,8 +6,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -17,6 +15,7 @@ import androidx.lifecycle.Observer;
 import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
 import com.guuda.sheep.SettingActivity;
+import com.guuda.sheep.activity.game.dialog.GameFailDialog;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.guuda.sheep.audio.AudioController;
 import com.guuda.sheep.customview.AwardView;
@@ -43,11 +42,8 @@ public class GameActivity extends AppCompatActivity {
     ActivityGameBinding binding;
 
     //过关dialog
-    GamePassDialog dialog_pass;
-    GamePassDialog.Builder dialog_passbuilder;
-    TextView dialog_nolivetitle;
-    TextView dialog_nolive_btn_one;
-    ImageView iv;
+    GamePassDialog dialogPass;
+    GameFailDialog dialogFail;
 
     //通关dialog
     GameCompleteDialog dialog_succeed;
@@ -87,24 +83,9 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void onLevelPass() {
                 if (1 == barrierNum){
-                    dialog_nolivetitle.setText("过关");
-                    dialog_nolive_btn_one.setText("进入下一关");
                     barrierNum = barrierNum + 1;
 
-                    Glide.with(GameActivity.this)
-                            .load(R.mipmap.ic_succeed)
-                            .into(iv);
-
-                    dialog_nolive_btn_one.setOnClickListener(new NoFastClickListener() {
-                        @Override
-                        protected void onSingleClick() {
-                            dialog_pass.dismiss();
-                            refreshTimeText();
-                            sheepView.setBarrierNum(barrierNum,0);
-                        }
-                    });
-
-                    dialog_pass.show();
+                    dialogPass.show();
                 }else {
                     //通关
                     view_award.startAnim();
@@ -132,20 +113,7 @@ public class GameActivity extends AppCompatActivity {
 
             @Override
             public void onLevelFail() {
-                dialog_nolivetitle.setText("你失败了 再接再厉");
-                dialog_nolive_btn_one.setText("重新开始");
-                Glide.with(GameActivity.this)
-                        .load(R.mipmap.ic_fail)
-                        .into(iv);
-
-                dialog_nolive_btn_one.setOnClickListener(new NoFastClickListener() {
-                    @Override
-                    protected void onSingleClick() {
-                        dialog_pass.dismiss();
-                        sheepView.setBarrierNum(barrierNum,0);
-                    }
-                });
-                dialog_pass.show();
+                dialogFail.show();
             }
 
         });
@@ -186,12 +154,17 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void initdialog() {
-        dialog_passbuilder = new GamePassDialog.Builder(GameActivity.this);
-        dialog_pass = dialog_passbuilder.create();
-        dialog_nolivetitle = dialog_passbuilder.getTitleTextView();
-        dialog_nolive_btn_one = dialog_passbuilder.getBtn_one();
-        iv = dialog_passbuilder.getIv_gif();
-        dialog_pass.setCanceledOnTouchOutside(false);
+        dialogPass = new GamePassDialog(this);
+        dialogPass.setOnNextLevelListener(v -> {
+            refreshTimeText();
+            sheepView.setBarrierNum(barrierNum,0);
+        });
+
+        dialogFail = new GameFailDialog(this);
+        dialogFail.setOnBackListener(v -> {
+            dialogPass.dismiss();
+            sheepView.setBarrierNum(barrierNum,0);
+        });
 
         dialog_succeedbuilder = new GameCompleteDialog.Builder(GameActivity.this);
         dialog_succeed = dialog_succeedbuilder.create();

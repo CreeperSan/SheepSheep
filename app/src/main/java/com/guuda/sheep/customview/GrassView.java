@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -60,6 +61,8 @@ public class GrassView extends AppCompatImageView {
         animator.setDuration(500L);
         animator.setRepeatCount(ObjectAnimator.INFINITE);
         animator.setRepeatMode(ObjectAnimator.REVERSE);
+
+        setPivotY(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, getResources().getDisplayMetrics()));
     }
 
     ObjectAnimator animator;
@@ -69,6 +72,8 @@ public class GrassView extends AppCompatImageView {
         super.onAttachedToWindow();
 
         if (animator != null) {
+//            setPivotY(getMeasuredHeight());
+//            setPivotY(getMeasuredHeight());
             animator.start();
         }
     }

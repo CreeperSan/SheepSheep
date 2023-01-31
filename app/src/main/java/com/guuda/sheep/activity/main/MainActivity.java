@@ -8,8 +8,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -115,12 +113,6 @@ public class MainActivity extends AppCompatActivity {
             ((RelativeLayout)findViewById(R.id.rl)).addView(grassView);
         }
 
-        //抖动
-        for (GrassView grassView : GrassViewList) {
-            Animation animation = AnimationUtils.loadAnimation(this, R.anim.anim_grass);
-            animation.setAnimationListener(new ReStartAnimationListener());
-            grassView.startAnimation(animation);
-        }
     }
 
 
@@ -237,23 +229,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class ReStartAnimationListener implements Animation.AnimationListener {
-        public void onAnimationEnd(Animation animation) {
-            animation.reset();
-            animation.setAnimationListener(new ReStartAnimationListener());
-            animation.start();
-        }
-
-        public void onAnimationRepeat(Animation animation) {
-
-        }
-
-        public void onAnimationStart(Animation animation) {
-
-        }
-
-    }
-
     private void initAwardSheepRescoure(){
         awardSheepRescoureList.add(R.mipmap.ic_award_sheep2);
         awardSheepRescoureList.add(R.mipmap.ic_award_sheep3);
@@ -284,9 +259,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        for (GrassView grassView : GrassViewList) {
-            grassView.getAnimation().cancel();
-        }
 
         super.onDestroy();
 

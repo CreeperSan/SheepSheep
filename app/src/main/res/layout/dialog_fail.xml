@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="55dp"
+        android:text="槽位已满"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_margin="10dp"
+        android:textSize="30sp"
+        android:textColor="#FF0000"/>
+
+    <TextView
+        android:layout_marginTop="280dp"
+        android:id="@+id/btn_one"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:text="重新开始"
+        android:padding="15dp"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/selector_menu_button"
+        android:textColor="@color/white"/>
+
+
+</LinearLayout>

@@ -40,6 +40,8 @@
         app:layout_constraintTop_toBottomOf="@id/sheepIv">
 
         <EditText
+            android:textColor="@color/white"
+            android:hint="请输入用户名"
             android:id="@+id/usernameET"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -63,6 +65,8 @@
             app:layout_constraintTop_toTopOf="@id/usernameET" />
 
         <EditText
+            android:textColor="@color/white"
+            android:hint="请输入密码"
             android:id="@+id/passwordET"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -86,6 +90,8 @@
             app:layout_constraintTop_toTopOf="@id/passwordET" />
 
         <EditText
+            android:textColor="@color/white"
+            android:hint="请再次输入密码"
             android:id="@+id/confirmPasswordET"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
