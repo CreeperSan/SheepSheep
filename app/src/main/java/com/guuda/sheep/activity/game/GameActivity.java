@@ -2,22 +2,25 @@ package com.guuda.sheep.activity.game;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 
+import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
 import com.guuda.sheep.SettingActivity;
 import com.guuda.sheep.activity.game.dialog.GameFailDialog;
+import com.guuda.sheep.activity.main.dialog.MainSettingDialog;
+import com.guuda.sheep.activity.main.receiver.GameLevelNotifyListener;
+import com.guuda.sheep.activity.main.receiver.GameLevelReceiver;
+import com.guuda.sheep.pref.PrefManager;
+import com.guuda.sheep.pref.PrefUpdateListener;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.guuda.sheep.audio.AudioController;
-import com.guuda.sheep.customview.AwardView;
 import com.guuda.sheep.customview.NoFastClickListener;
 import com.guuda.sheep.customview.SheepView;
 import com.guuda.sheep.databinding.ActivityGameBinding;
@@ -28,8 +31,6 @@ import com.tencent.mmkv.MMKV;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * @ProjectName: MySunSheep
@@ -50,6 +51,8 @@ public class GameActivity extends AppCompatActivity {
     GameCompleteDialog dialogComplete;
     List<Integer> awardSheepRescoureList;
 
+    private PrefUpdateListener<Boolean> mutePrefListener;
+
     private int barrierNum = 1;  //关卡
     SheepView sheepView;
 
@@ -63,8 +66,9 @@ public class GameActivity extends AppCompatActivity {
         AudioController.instance.playBackground(AudioController.BACKGROUND_GAME);
 
         initDialog();
-        initview();
+        initView();
         initTitle();
+        initHeadLayout();
     }
 
     @Override
@@ -72,9 +76,11 @@ public class GameActivity extends AppCompatActivity {
         super.onDestroy();
 
         AudioController.instance.playBackground(AudioController.BACKGROUND_MENU);
+
+        PrefManager.instance.removeMuteChangeListener(mutePrefListener);
     }
 
-    private void initview(){
+    private void initView(){
         sheepView = new SheepView(GameActivity.this, barrierNum);
         binding.rl.addView(sheepView);
 
@@ -85,6 +91,10 @@ public class GameActivity extends AppCompatActivity {
                     barrierNum = barrierNum + 1;
 
                     dialogPass.show();
+
+                    Intent intent = new Intent(GameLevelReceiver.ACTION);
+                    intent.putExtra("event", GameLevelNotifyListener.LEVEL_1_PASS);
+                    sendBroadcast(intent);
                 }else {
                     //通关
                     int listnum = MMKV.defaultMMKV().decodeInt("specialSheepListNum");
@@ -97,6 +107,9 @@ public class GameActivity extends AppCompatActivity {
                     //随机gif
                     dialogComplete.show();
 
+                    Intent intent = new Intent(GameLevelReceiver.ACTION);
+                    intent.putExtra("event", GameLevelNotifyListener.LEVEL_2_PASS);
+                    sendBroadcast(intent);
                 }
 
             }
@@ -166,6 +179,29 @@ public class GameActivity extends AppCompatActivity {
         initAwardSheepRescoure();
     }
 
+    private void refreshMuteButton(ImageView imageView) {
+        Glide.with(imageView.getContext())
+                .load(AudioController.instance.isMute() ? R.drawable.ic_music_off_white_24 : R.drawable.ic_music_white_24)
+                .into(imageView);
+    }
+
+    private void initHeadLayout() {
+        // 音效按钮
+        mutePrefListener = value -> refreshMuteButton(binding.head.soundBtn);
+        refreshMuteButton(binding.head.soundBtn);
+        binding.head.soundBtn.setOnClickListener(v -> {
+            boolean newMuteState = AudioController.instance.toggleMute();
+            PrefManager.instance.setMute(newMuteState);
+            refreshMuteButton(binding.head.soundBtn);
+        });
+        PrefManager.instance.addMuteChangeListener(mutePrefListener);
+
+        // 设置按钮
+        binding.head.settingBtn.setOnClickListener(v -> {
+            MainSettingDialog dialog = new MainSettingDialog(this);
+            dialog.show();
+        });
+    }
 
     private void initAwardSheepRescoure(){
         awardSheepRescoureList.add(R.mipmap.ic_award_sheep2);

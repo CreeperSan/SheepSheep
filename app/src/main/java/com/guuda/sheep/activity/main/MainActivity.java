@@ -6,13 +6,19 @@ import androidx.databinding.ViewDataBinding;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
+import com.guuda.sheep.activity.main.receiver.GameLevelNotifyListener;
+import com.guuda.sheep.activity.main.receiver.GameLevelReceiver;
+import com.guuda.sheep.database.entity.UserInfo;
+import com.guuda.sheep.repository.AccountRepository;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.guuda.sheep.activity.BaseFragment;
 import com.guuda.sheep.activity.main.fragment.MainLevelSelectFragment;
@@ -35,6 +41,8 @@ import com.tencent.mmkv.MMKV;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.rxjava3.disposables.Disposable;
+
 public class MainActivity extends AppCompatActivity {
     ViewDataBinding binding;
 
@@ -49,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MainViewModel mViewModel;
 
+    private GameLevelReceiver gameLevelReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         initAwardSheepRescoure();
         initGrassView();
         initViewModel();
+        initReceiver();
 
         //通关在首页增加一只
         LiveEventBus.get("succeed", Boolean.class)
@@ -181,6 +192,39 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void initReceiver() {
+        gameLevelReceiver = new GameLevelReceiver(event -> {
+            MainViewModel viewModel = getViewModel();
+            if (viewModel == null) {
+                return;
+            }
+
+            UserInfo userInfo = viewModel.getCurrentUserInfo().getValue();
+            if (userInfo == null) {
+                return;
+            }
+
+            switch (event) {
+                case GameLevelNotifyListener.LEVEL_1_PASS : {
+                    Disposable disposable = AccountRepository.updateReachLevel(userInfo.username, 1).subscribe(val -> {
+                        Log.e("TAG", "第一关通关");
+                    }, Throwable::printStackTrace);
+                    break;
+                }
+                case GameLevelNotifyListener.LEVEL_2_PASS : {
+                    Disposable disposable = AccountRepository.updateReachLevel(userInfo.username, 2).subscribe(val -> {
+                        Log.e("TAG", "第二关通关");
+                    }, Throwable::printStackTrace);;
+                    break;
+                }
+            }
+        });
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(GameLevelReceiver.ACTION);
+        registerReceiver(gameLevelReceiver, intentFilter);
+    }
+
     private void startAnim(){
 
         //以获取的战利品羊gif
@@ -263,5 +307,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         AudioController.instance.pauseBackground();
+
+        unregisterReceiver(gameLevelReceiver);
     }
 }

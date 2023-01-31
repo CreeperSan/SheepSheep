@@ -13,6 +13,7 @@ import com.guuda.sheep.R;
 import com.guuda.sheep.activity.main.viewmodel.MainViewModel;
 import com.guuda.sheep.activity.main.viewstate.MainLevelSelectViewState;
 import com.guuda.sheep.audio.AudioController;
+import com.guuda.sheep.database.entity.UserInfo;
 import com.guuda.sheep.databinding.FragmentMainLevelSelectBinding;
 import com.guuda.sheep.pref.PrefManager;
 import com.guuda.sheep.pref.PrefUpdateListener;
@@ -41,6 +42,7 @@ public class MainLevelSelectFragment extends BaseMainFragment<MainLevelSelectVie
                     return;
                 }
                 viewModel.toGame(activity);
+                viewModel.toMenu();
             }
         });
 
@@ -52,6 +54,7 @@ public class MainLevelSelectFragment extends BaseMainFragment<MainLevelSelectVie
                     return;
                 }
                 viewModel.toGame(activity);
+                viewModel.toMenu();
             }
         });
 
@@ -75,6 +78,16 @@ public class MainLevelSelectFragment extends BaseMainFragment<MainLevelSelectVie
             refreshMuteButton(binding.head.soundBtn);
         });
         PrefManager.instance.addMuteChangeListener(mutePrefListener);
+
+        // 第二关锁
+        MainViewModel mainViewModel = getViewModel();
+        if (mainViewModel != null) {
+            UserInfo userInfo = mainViewModel.getCurrentUserInfo().getValue();
+            if (userInfo != null) {
+                boolean isUnlockLevel2 = userInfo.reachLevel >=1;
+                binding.lockLevel2.setVisibility(isUnlockLevel2 ? View.GONE : View.VISIBLE);
+            }
+        }
 
     }
 
