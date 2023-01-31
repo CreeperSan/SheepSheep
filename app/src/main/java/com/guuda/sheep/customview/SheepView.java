@@ -625,24 +625,6 @@ public class SheepView extends RelativeLayout {
             rlAlllayout.addView(grassView);
         }
 
-        //抖动
-        for (GrassView grassView : GrassViewList) {
-            Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.anim_grass);
-            animation.setAnimationListener(new ReStartAnimationListener());
-            grassView.startAnimation(animation);
-        }
-    }
-
-    private class ReStartAnimationListener implements Animation.AnimationListener {
-        public void onAnimationEnd(Animation animation) {
-            animation.reset();
-            animation.setAnimationListener(new ReStartAnimationListener());
-            animation.start();
-        }
-
-        public void onAnimationRepeat(Animation animation) { }
-        public void onAnimationStart(Animation animation) { }
-
     }
 
     /**

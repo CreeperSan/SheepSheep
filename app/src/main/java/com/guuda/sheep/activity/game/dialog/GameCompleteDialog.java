@@ -2,51 +2,43 @@ package com.guuda.sheep.activity.game.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.content.DialogInterface;
+import android.os.Bundle;
 
 import com.guuda.sheep.R;
-import com.guuda.sheep.customview.AwardView;
-import com.guuda.sheep.utils.PUtil;
+import com.guuda.sheep.databinding.DialogSucceedBinding;
 
 public class GameCompleteDialog extends Dialog {
+    private DialogSucceedBinding binding;
 
-    public GameCompleteDialog(Context context, int theme) {
-        super(context, theme);
+    private DialogInterface.OnDismissListener mDismissListener;
+
+    public GameCompleteDialog(Context context) {
+        super(context, R.style.SucceedDialog);
     }
 
-    public static class Builder {private Context context;
-        private AwardView view_award;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        public Builder(Context context) {
-            this.context = context;
-        }
+        binding = DialogSucceedBinding.inflate(getLayoutInflater());
 
-        public AwardView getView_award() {
-            return view_award;
-        }
+        setContentView(binding.getRoot());
 
-        public void setView_award(AwardView view_award) {
-            this.view_award = view_award;
-        }
+        setCancelable(false);
+        setCanceledOnTouchOutside(false);
 
-        public GameCompleteDialog create() {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final GameCompleteDialog dialog = new GameCompleteDialog(context, R.style.SucceedDialog);
-            View layout = inflater.inflate(R.layout.dialog_succeed, null);
-            dialog.addContentView(layout, new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                    ,   ViewGroup.LayoutParams.WRAP_CONTENT));
-            dialog.setContentView(layout);
-            RelativeLayout rl = (RelativeLayout) layout.findViewById(R.id.rl);
-            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(PUtil.getScreenW(context), PUtil.getScreenH(context));
-            rl.setLayoutParams(layoutParams);
-            view_award = (AwardView)layout.findViewById(R.id.view_award);
-            return dialog;
-        }
+        binding.backBtn.setOnClickListener(v -> {
+            dismiss();
+        });
+
+        setOnDismissListener(dialog -> {
+            mDismissListener.onDismiss(this);
+        });
     }
+
+    public void setCloseListener(DialogInterface.OnDismissListener listener) {
+        mDismissListener = listener;
+    }
+
 }

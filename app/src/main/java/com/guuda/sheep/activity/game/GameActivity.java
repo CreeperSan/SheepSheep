@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 
-import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
 import com.guuda.sheep.SettingActivity;
 import com.guuda.sheep.activity.game.dialog.GameFailDialog;
@@ -39,6 +38,8 @@ import java.util.TimerTask;
  * @CreateDate: 2022/10/26/026 10:42
  */
 public class GameActivity extends AppCompatActivity {
+    private final static int DEFAULT_DEGREE_NUM = 1;
+
     ActivityGameBinding binding;
 
     //过关dialog
@@ -46,9 +47,7 @@ public class GameActivity extends AppCompatActivity {
     GameFailDialog dialogFail;
 
     //通关dialog
-    GameCompleteDialog dialog_succeed;
-    GameCompleteDialog.Builder dialog_succeedbuilder;
-    AwardView view_award;
+    GameCompleteDialog dialogComplete;
     List<Integer> awardSheepRescoureList;
 
     private int barrierNum = 1;  //关卡
@@ -63,7 +62,7 @@ public class GameActivity extends AppCompatActivity {
 
         AudioController.instance.playBackground(AudioController.BACKGROUND_GAME);
 
-        initdialog();
+        initDialog();
         initview();
         initTitle();
     }
@@ -88,8 +87,6 @@ public class GameActivity extends AppCompatActivity {
                     dialogPass.show();
                 }else {
                     //通关
-                    view_award.startAnim();
-
                     int listnum = MMKV.defaultMMKV().decodeInt("specialSheepListNum");
                     if (listnum == 18){
                         Toast.makeText(GameActivity.this, "你已收集完所有类别", Toast.LENGTH_SHORT).show();
@@ -97,15 +94,8 @@ public class GameActivity extends AppCompatActivity {
                     }
                     MMKV.defaultMMKV().encode("specialSheepListNum", listnum+1);
 
-                    view_award.setRescoure(awardSheepRescoureList.get(listnum));
                     //随机gif
-                    dialog_succeed.show();
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            mHandler.sendEmptyMessage(0X123);
-                        }
-                    },4000);
+                    dialogComplete.show();
 
                 }
 
@@ -153,45 +143,29 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    private void initdialog() {
+    private void initDialog() {
         dialogPass = new GamePassDialog(this);
         dialogPass.setOnNextLevelListener(v -> {
             refreshTimeText();
-            sheepView.setBarrierNum(barrierNum,0);
+            sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
         });
 
         dialogFail = new GameFailDialog(this);
         dialogFail.setOnBackListener(v -> {
             dialogPass.dismiss();
-            sheepView.setBarrierNum(barrierNum,0);
+            sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
         });
 
-        dialog_succeedbuilder = new GameCompleteDialog.Builder(GameActivity.this);
-        dialog_succeed = dialog_succeedbuilder.create();
-        view_award = dialog_succeedbuilder.getView_award();
-        dialog_succeed.setCanceledOnTouchOutside(false);
+        dialogComplete = new GameCompleteDialog(this);
+        dialogComplete.setCloseListener(dialog -> {
+            LiveEventBus.get("succeed").post(true);
+            finish();
+        });
 
         awardSheepRescoureList = new ArrayList<>();
         initAwardSheepRescoure();
     }
 
-    /**
-     * 更新的Handler
-     */
-    private Handler mHandler = new Handler(Looper.getMainLooper()) {
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0X123: {
-                    LiveEventBus.get("succeed").post(true);
-                    view_award.cancelAnim();
-                    finish();
-                    break;
-                }
-            }
-        }
-    };
 
     private void initAwardSheepRescoure(){
         awardSheepRescoureList.add(R.mipmap.ic_award_sheep2);
