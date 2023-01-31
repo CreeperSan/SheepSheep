@@ -1,5 +1,6 @@
 package com.guuda.sheep.customview;
 
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,9 +11,13 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.ImageView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 
+import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
 
 import java.util.ArrayList;
@@ -21,8 +26,7 @@ import java.util.List;
 /**
  * 会动的小草
  */
-public class GrassView extends View {
-    private final Paint mPaint = new Paint();
+public class GrassView extends AppCompatImageView {
 
     public GrassView(Context context) {
         this(context,null);
@@ -34,41 +38,47 @@ public class GrassView extends View {
 
     public GrassView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-    }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        mPaint.setColor(Color.parseColor("#639332"));
-        mPaint.setAntiAlias(true);//抗锯齿效果
-        mPaint.setStrokeWidth(4);
-        mPaint.setStyle(Paint.Style.STROKE);
-
-        int num = (int) (Math.round(Math.random() * 3));
-        Bitmap mBitmap = null;
-        switch (num){
-            case 0:
-                mBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_grass1);
-                break;
+        @DrawableRes int imageRes;
+        switch ((int) (Math.round(Math.random() * 3))) {
             case 1:
-                mBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_grass2);
+                imageRes = R.mipmap.ic_grass2;
                 break;
             case 2:
-                mBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_grass3);
+                imageRes = R.mipmap.ic_grass3;
                 break;
             case 3:
-                mBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_grass5);
+                imageRes = R.mipmap.ic_grass4;
                 break;
+            default:
+                imageRes = R.mipmap.ic_grass1;
         }
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(mBitmap, 60, 60, true);
-        canvas.drawBitmap(scaledBitmap, 0f, 0f, mPaint);
 
+        Glide.with(this).load(imageRes).into(this);
+
+        animator = ObjectAnimator.ofFloat(this, "scaleY", 1f, 1.2f);
+        animator.setDuration(500L);
+        animator.setRepeatCount(ObjectAnimator.INFINITE);
+        animator.setRepeatMode(ObjectAnimator.REVERSE);
     }
 
+    ObjectAnimator animator;
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        if (animator != null) {
+            animator.start();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        if (animator != null) {
+            animator.pause();
+        }
+    }
 }
