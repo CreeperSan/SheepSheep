@@ -61,6 +61,10 @@ public class SheepView extends RelativeLayout {
     private final long leftTime = 40;
     private final long changeTime = 600;
 
+    private final static int OFFSET_DP_GAME = 156;
+    private final static int OFFSET_DP_QUEUE = 88;
+    private final static int OFFSET_DP_BRING_OUT = 88;
+
     private List<Double[]> locationList;  //棋子坐标列表
     private List<Integer> iconList;   //图标列表
     private List<Integer> degreeList;   //等级列表
@@ -207,6 +211,11 @@ public class SheepView extends RelativeLayout {
         refreshToolButton();
     }
 
+    /**
+     * 初始化从顶部下落的动画
+     * @param imageView
+     * @param delayTime
+     */
     private void startDownAnim(ImageView imageView, long delayTime){
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
         valueAnimator.setDuration(downDelayTime);
@@ -219,12 +228,14 @@ public class SheepView extends RelativeLayout {
                 Double[] ilocation = (Double[]) imageView.getTag(R.id.sheepview_imageview_location);
 
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
-                layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 - DimensionUtils.dp2px(14* CHESS_SIZE)/2 +
-                                        DimensionUtils.dp2px(CHESS_SIZE)*ilocation[0]);
+                layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 -
+                        DimensionUtils.dp2px(14* CHESS_SIZE)/2 +
+                        DimensionUtils.dp2px(CHESS_SIZE)*ilocation[0]);
 
                 //从屏幕上方一个棋子的位置下落，多加2*20
-                double value1 = DimensionUtils.getScreenH() / 2 - DimensionUtils.dp2px(16* CHESS_SIZE)/2 +
-                        DimensionUtils.dp2px(CHESS_SIZE)*(ilocation[1]+2);
+                double value1 = DimensionUtils.dp2px(OFFSET_DP_GAME) +
+                        DimensionUtils.dp2px(CHESS_SIZE) * ilocation[1];
+
                 value1 = value1/100 *animatedValue - DimensionUtils.dp2px(2* CHESS_SIZE);
                 layoutParams.topMargin = (int) value1;
                 imageView.setLayoutParams(layoutParams);
@@ -333,12 +344,13 @@ public class SheepView extends RelativeLayout {
                 float animatedValue = (float) valueAnimator.getAnimatedValue();
 
                 int targetLeftMargin = (DimensionUtils.getScreenW()- DimensionUtils.dp2px(14* CHESS_SIZE))/2 + (takeinChessList.size())* DimensionUtils.dp2px(2* CHESS_SIZE);
-                int targetTopMargin = DimensionUtils.getScreenH()- DimensionUtils.dp2px(25+2* CHESS_SIZE);
+                int targetTopMargin = DimensionUtils.getScreenH() - DimensionUtils.dp2px(25+2* CHESS_SIZE) - DimensionUtils.dp2px(42+16);
 
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
                 int leftMargin = layoutParams.leftMargin;
                 float value1 = (((float) leftMargin)-targetLeftMargin)/100 *animatedValue;
                 layoutParams.leftMargin = (int) (leftMargin - value1);
+
                 int topMargin = layoutParams.topMargin;
                 float value2 = (((float) topMargin)-targetTopMargin)/100 *animatedValue;
                 layoutParams.topMargin = (int) (topMargin - value2);
@@ -557,14 +569,22 @@ public class SheepView extends RelativeLayout {
     }
 
     private void locationToMargin(ImageView iv,Double[] mLocation,int mDegree){  //坐标转换成marginleft和margintop,层级：最上层为1，依次增加
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(DimensionUtils.dp2px(2* CHESS_SIZE), DimensionUtils.dp2px(2* CHESS_SIZE));
-        layoutParams.topMargin = -DimensionUtils.dp2px(2* CHESS_SIZE);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                DimensionUtils.dp2px(2* CHESS_SIZE),
+                DimensionUtils.dp2px(2* CHESS_SIZE)
+        );
+        layoutParams.topMargin = -DimensionUtils.dp2px(2* CHESS_SIZE); // 负数是实例化到界面外面，防止动画播放前被看见
         iv.setLayoutParams(layoutParams);
 
         iv.setTag(R.id.sheepview_imageview_degree,mDegree);
         iv.setTag(R.id.sheepview_imageview_location,mLocation);
         iv.setBackground(AppCompatResources.getDrawable(getContext(), R.drawable.bg_chessview));
-        iv.setPadding(DimensionUtils.dp2px(5), DimensionUtils.dp2px(5), DimensionUtils.dp2px(5), DimensionUtils.dp2px(5));
+        iv.setPadding(
+                DimensionUtils.dp2px(5),
+                DimensionUtils.dp2px(5),
+                DimensionUtils.dp2px(5),
+                DimensionUtils.dp2px(5)
+        );
     }
 
     private void judgeCanClick(boolean onlyChangeViewClickable){   //判断剩下棋子是否可以点击 ,无法点击background设置蒙版
@@ -666,45 +686,26 @@ public class SheepView extends RelativeLayout {
      * （3,12） （6,12） （9,12）
      */
     private void initFirstLocationList(){
-        Double[] location1 = {3.0,4.0};
-        Double[] location2 = {6.0,4.0};
-        Double[] location3 = {9.0,4.0};
-        Double[] location4 = {3.0,8.0};
-        Double[] location5 = {6.0,8.0};
-        Double[] location6 = {9.0,8.0};
-        Double[] location7 = {3.0,12.0};
-        Double[] location8 = {6.0,12.0};
-        Double[] location9 = {9.0,12.0};
 
-        Double[] location10 = {3.0,3.0};
-        Double[] location11 = {6.0,3.0};
-        Double[] location12 = {9.0,3.0};
-        Double[] location13 = {3.0,7.0};
-        Double[] location14 = {6.0,7.0};
-        Double[] location15 = {9.0,7.0};
-        Double[] location16 = {3.0,11.0};
-        Double[] location17 = {6.0,11.0};
-        Double[] location18 = {9.0,11.0};
+        locationList.add(new Double[] { 3.0, 4.0 });
+        locationList.add(new Double[] { 6.0 , 4.0 });
+        locationList.add(new Double[] { 9.0 , 4.0 });
+        locationList.add(new Double[] { 3.0 , 8.0 });
+        locationList.add(new Double[] { 6.0 , 8.0 });
+        locationList.add(new Double[] { 9.0 , 8.0 });
+        locationList.add(new Double[] { 3.0 , 12.0 });
+        locationList.add(new Double[] { 6.0 , 12.0 });
+        locationList.add(new Double[] { 9.0 , 12.0 });
 
-        locationList.add(location1);
-        locationList.add(location2);
-        locationList.add(location3);
-        locationList.add(location4);
-        locationList.add(location5);
-        locationList.add(location6);
-        locationList.add(location7);
-        locationList.add(location8);
-        locationList.add(location9);
-
-        locationList.add(location10);
-        locationList.add(location11);
-        locationList.add(location12);
-        locationList.add(location13);
-        locationList.add(location14);
-        locationList.add(location15);
-        locationList.add(location16);
-        locationList.add(location17);
-        locationList.add(location18);
+        locationList.add(new Double[] { 3.0 , 3.0 });
+        locationList.add(new Double[] { 6.0 , 3.0 });
+        locationList.add(new Double[] { 9.0 , 3.0 });
+        locationList.add(new Double[] { 3.0 , 7.0 });
+        locationList.add(new Double[] { 6.0 , 7.0 });
+        locationList.add(new Double[] { 9.0 , 7.0 });
+        locationList.add(new Double[] { 3.0 , 11.0 });
+        locationList.add(new Double[] { 6.0 , 11.0 });
+        locationList.add(new Double[] { 9.0 , 11.0 });
 
         for (int i = 0; i < 18; i++) {
             if (i<9){
@@ -794,9 +795,9 @@ public class SheepView extends RelativeLayout {
         //获取底部层数
         int bottomGegreeNum = i*3;
         for (int x = 0; x < bottomGegreeNum; x++) {
-            locationList.add(new Double[]{3.0- ((double) 5.0)/ CHESS_SIZE *x,17.0});
+            locationList.add(new Double[]{3.0- (5.0)/ CHESS_SIZE *x,17.0});
             degreeList.add(x+1);
-            locationList.add(new Double[]{9.0+ ((double) 5.0)/ CHESS_SIZE *x,17.0});
+            locationList.add(new Double[]{9.0+ (5.0)/ CHESS_SIZE *x,17.0});
             degreeList.add(x+1);
         }
     }

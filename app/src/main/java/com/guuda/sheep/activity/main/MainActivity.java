@@ -208,7 +208,12 @@ public class MainActivity extends AppCompatActivity {
                 case GameLevelNotifyListener.LEVEL_2_PASS : {
                     Disposable disposable = AccountRepository.updateReachLevel(userInfo.username, 2).subscribe(val -> {
                         Log.e("TAG", "第二关通关");
-                    }, Throwable::printStackTrace);;
+                    }, Throwable::printStackTrace);
+
+                    userInfo.highScore += 1;
+                    Disposable disposableHighScore = AccountRepository.updateHighScore(userInfo.username, userInfo.highScore).subscribe(val -> {
+                        Log.e("TAG", "第二关通关积分+1");
+                    }, Throwable::printStackTrace);
                     break;
                 }
             }
