@@ -5,6 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.NonNull;
@@ -39,6 +41,7 @@ public class ChessView extends AppCompatImageView {
 
     private static final long DURATION_DARKEN = 500;
     private static final long DURATION_LIGHTEN = 500;
+    public static final long DURATION_CLICK = 100;
 
     private OnClickListener clickListener;
 
@@ -52,6 +55,7 @@ public class ChessView extends AppCompatImageView {
         // 自定义点击事件
         super.setOnClickListener(v -> {
             if (clickListener != null && state == STATE_GAMING) {
+                animateClick();
                 clickListener.onClick(v);
             }
         });
@@ -122,13 +126,10 @@ public class ChessView extends AppCompatImageView {
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
         valueAnimator.setDuration(DURATION_DARKEN);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float animatedValue = (float) valueAnimator.getAnimatedValue();
+        valueAnimator.addUpdateListener(animator -> {
+                float animatedValue = (float) animator.getAnimatedValue();
                 setForeground(AppCompatResources.getDrawable(getContext(), R.drawable.fg_black_alpha70));
                 getForeground().setAlpha((int) (((double) 255)/100*animatedValue));
-            }
         });
 //        valueAnimator.setStartDelay(delayTime); // TODO 原有逻辑有延时时间，后面看看是否需要
         valueAnimator.start();
@@ -154,6 +155,11 @@ public class ChessView extends AppCompatImageView {
             }
         });
         valueAnimator.start();
+    }
+
+    private void animateClick() {
+        Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_scale);
+        startAnimation(animation);
     }
 
 }

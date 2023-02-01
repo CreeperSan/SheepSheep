@@ -49,7 +49,6 @@ public class SheepView extends RelativeLayout {
     private final static int CHESS_SIZE = 24;  //棋子大小的一半
     private List<ChessView> showChessList;   //棋牌区域image的list
     private List<ChessView> takeinChessList;   //收纳区image的list
-    private List<Integer> resourcesList;   //图片资源list
     private int MAX_DEGREE = 20;  //第二关最多层数
     private final int MAX_CHESS_NUM = 36; //第二关 单层棋子最多数量
     private int degreeNum = 0;  //获取层数 (为0时，从10-MAX_DEGREE中随机获取层数,有传入用传入)
@@ -87,13 +86,11 @@ public class SheepView extends RelativeLayout {
         mGrassLocationList = new ArrayList<>();
         showChessList = new ArrayList<>();
         takeinChessList = new ArrayList<>();
-        resourcesList = new ArrayList<>();
         locationList = new ArrayList<>();
         iconList = new ArrayList<>();
         degreeList = new ArrayList<>();
 
         initView(context);
-        initResourcesList();
         initGrassView();
         refreshToolButton();
     }
@@ -116,31 +113,31 @@ public class SheepView extends RelativeLayout {
 
     private void initBarrier(){
         for (int i = 0; i < iconList.size(); i++) {
-            ChessView imageView = new ChessView(mContext);
-            locationToMargin(imageView,locationList.get(i),degreeList.get(i));
-            imageView.setImageResource(resourcesList.get(iconList.get(i)));
-            imageView.setTag(R.id.sheepview_imageview_picrescoure,iconList.get(i));
-            imageView.setOnClickListener(new NoFastClickListener() {
+            ChessView chessView = new ChessView(mContext);
+            locationToMargin(chessView, locationList.get(i), degreeList.get(i));
+            chessView.setChess(iconList.get(i));
+            chessView.setTag(R.id.sheepview_imageview_picrescoure,iconList.get(i));
+            chessView.setOnClickListener(new NoFastClickListener() {
                 @Override
                 protected void onSingleClick() {
                     AudioController.instance.playEffect(AudioController.SOUND_CLICK);
-                    showChessList.remove(imageView);
-                    scaleChangeAnim(imageView);
+                    showChessList.remove(chessView);
+                    startTakeinAnim(chessView);
 
                     judgeCanClick(false);
                 }
             });
 
-            showChessList.add(imageView);
-            rlAllLayout.addView(imageView);
+            showChessList.add(chessView);
+            rlAllLayout.addView(chessView);
         }
 
-        for (ImageView imageView : showChessList) {
+        for (ChessView chessView : showChessList) {
             int mTime = (int) (Math.random() * 700);
-            startDownAnim(imageView,mTime);
+            startDownAnim(chessView,mTime);
 
-            if (judgeNeedToDark(imageView)){
-                startToDarkAnim(imageView,mTime+downDelayTime);
+            if (judgeNeedToDark(chessView)){
+                startToDarkAnim(chessView,mTime+downDelayTime);
             }
         }
     }
@@ -172,14 +169,14 @@ public class SheepView extends RelativeLayout {
         this.degreeNum = mDegreeNum;
 
         if (showChessList.size()>0){
-            for (ImageView iv : showChessList){
-                rlAllLayout.removeView(iv);
+            for (ChessView chessView : showChessList){
+                rlAllLayout.removeView(chessView);
             }
         }
 
         if (takeinChessList.size()>0){
-            for (ImageView iv : takeinChessList){
-                rlAllLayout.removeView(iv);
+            for (ChessView chessView : takeinChessList){
+                rlAllLayout.removeView(chessView);
             }
         }
 
@@ -213,10 +210,10 @@ public class SheepView extends RelativeLayout {
 
     /**
      * 初始化从顶部下落的动画
-     * @param imageView
+     * @param chessView
      * @param delayTime
      */
-    private void startDownAnim(ImageView imageView, long delayTime){
+    private void startDownAnim(ChessView chessView, long delayTime){
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
         valueAnimator.setDuration(downDelayTime);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
@@ -225,9 +222,9 @@ public class SheepView extends RelativeLayout {
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float animatedValue = (float) valueAnimator.getAnimatedValue();
 
-                Double[] ilocation = (Double[]) imageView.getTag(R.id.sheepview_imageview_location);
+                Double[] ilocation = (Double[]) chessView.getTag(R.id.sheepview_imageview_location);
 
-                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) chessView.getLayoutParams();
                 layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 -
                         DimensionUtils.dp2px(14* CHESS_SIZE)/2 +
                         DimensionUtils.dp2px(CHESS_SIZE)*ilocation[0]);
@@ -238,7 +235,7 @@ public class SheepView extends RelativeLayout {
 
                 value1 = value1/100 *animatedValue - DimensionUtils.dp2px(2* CHESS_SIZE);
                 layoutParams.topMargin = (int) value1;
-                imageView.setLayoutParams(layoutParams);
+                chessView.setLayoutParams(layoutParams);
             }
         });
         valueAnimator.setStartDelay(delayTime);
@@ -253,7 +250,7 @@ public class SheepView extends RelativeLayout {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                Double[] tag = ((Double[]) imageView.getTag(R.id.sheepview_imageview_location));
+                Double[] tag = ((Double[]) chessView.getTag(R.id.sheepview_imageview_location));
                 if (tag[1] == 17&&(tag[0] == 3||tag[0] == 9)){  //滚动放大动画
                     ValueAnimator rollValueAnimator = ValueAnimator.ofFloat(0f, 100f);
                     rollValueAnimator.setDuration(changeTime);
@@ -264,7 +261,7 @@ public class SheepView extends RelativeLayout {
                             float animatedValue = (float) valueAnimator.getAnimatedValue();
 
                             Log.i("孙", "animatedValue/100: "+animatedValue/100);
-                            imageView.setRotation(animatedValue/100*360);
+                            chessView.setRotation(animatedValue/100*360);
                         }
                     });
                     rollValueAnimator.start();
@@ -273,23 +270,20 @@ public class SheepView extends RelativeLayout {
         });
     }
 
-    private void startToDarkAnim(ImageView imageView,long delayTime){
+    private void startToDarkAnim(ChessView chessView,long delayTime){
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
         valueAnimator.setDuration(DURATION_CHESS_DARKEN);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float animatedValue = (float) valueAnimator.getAnimatedValue();
-                imageView.setForeground(AppCompatResources.getDrawable(mContext, R.drawable.fg_black_alpha70));
-                imageView.getForeground().setAlpha((int) (((double) 255)/100*animatedValue));
-            }
+        valueAnimator.addUpdateListener(animator -> {
+                float animatedValue = (float) animator.getAnimatedValue();
+                chessView.setForeground(AppCompatResources.getDrawable(mContext, R.drawable.fg_black_alpha70));
+                chessView.getForeground().setAlpha((int) (((double) 255)/100*animatedValue));
         });
         valueAnimator.setStartDelay(delayTime);
         valueAnimator.start();
     }
 
-    private void startToLightAnim(ImageView imageView){
+    private void startToLightAnim(ChessView chessView){
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
         valueAnimator.setDuration(DURATION_CHESS_LIGHTEN);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
@@ -297,8 +291,8 @@ public class SheepView extends RelativeLayout {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float animatedValue = (float) valueAnimator.getAnimatedValue();
-                if (null!=imageView.getForeground()){
-                    imageView.getForeground().setAlpha((int) (255- ((double) 255)/100*animatedValue));
+                if (null!=chessView.getForeground()){
+                    chessView.getForeground().setAlpha((int) (255- ((double) 255)/100*animatedValue));
                 }
             }
         });
@@ -307,36 +301,18 @@ public class SheepView extends RelativeLayout {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                imageView.setForeground(null);
+                chessView.setForeground(null);
             }
         });
         valueAnimator.start();
     }
 
-    private void scaleChangeAnim(ChessView imageView){ //点击后 棋子放大缩小 缩放动画
-        Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.anim_scale);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
+    private void startTakeinAnim(ChessView chessView){  //放大缩小后，从上方容器到下方容器 移动动画
+        chessView.setState(ChessView.STATE_IN_QUEUE);
 
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                startTakeinAnim(imageView);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        imageView.startAnimation(animation);
-    }
-
-    private void startTakeinAnim(ChessView imageView){  //放大缩小后，从上方容器到下方容器 移动动画
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
         valueAnimator.setDuration(DURATION_TAKEIN);
+        valueAnimator.setStartDelay(ChessView.DURATION_CLICK);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -346,7 +322,7 @@ public class SheepView extends RelativeLayout {
                 int targetLeftMargin = (DimensionUtils.getScreenW()- DimensionUtils.dp2px(14* CHESS_SIZE))/2 + (takeinChessList.size())* DimensionUtils.dp2px(2* CHESS_SIZE);
                 int targetTopMargin = DimensionUtils.getScreenH() - DimensionUtils.dp2px(25+2* CHESS_SIZE) - DimensionUtils.dp2px(42+16);
 
-                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) chessView.getLayoutParams();
                 int leftMargin = layoutParams.leftMargin;
                 float value1 = (((float) leftMargin)-targetLeftMargin)/100 *animatedValue;
                 layoutParams.leftMargin = (int) (leftMargin - value1);
@@ -355,7 +331,7 @@ public class SheepView extends RelativeLayout {
                 float value2 = (((float) topMargin)-targetTopMargin)/100 *animatedValue;
                 layoutParams.topMargin = (int) (topMargin - value2);
 
-                imageView.setLayoutParams(layoutParams);
+                chessView.setLayoutParams(layoutParams);
             }
         });
         valueAnimator.addListener(new AnimatorListenerAdapter() {
@@ -367,7 +343,7 @@ public class SheepView extends RelativeLayout {
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
 
-                takeinChessList.add(imageView);
+                takeinChessList.add(chessView);
                 Map<Integer,List<Integer>> mMap= new HashMap<>();  //key资源序号，list 图片在takeinChessList的位置
                 for (int i = 0; i < takeinChessList.size(); i++) {
                     if (null == mMap.get(((int) takeinChessList.get(i).getTag(R.id.sheepview_imageview_picrescoure)))){
@@ -397,7 +373,7 @@ public class SheepView extends RelativeLayout {
                     }
                 }else {
                     //冻结所有上层棋子的点击事件
-                    for (ImageView view : showChessList) {
+                    for (ChessView view : showChessList) {
                         view.setEnabled(false);
                     }
                 }
@@ -502,8 +478,8 @@ public class SheepView extends RelativeLayout {
     }
 
     int leftFinishNum = 0;
-    private void startLeftSmallAnim(List<ChessView> ivAllList,ImageView iv,int distanceNum,List<Integer> mlist){
-        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) iv.getLayoutParams();
+    private void startLeftSmallAnim(List<ChessView> ivAllList,ChessView chessView,int distanceNum,List<Integer> mlist){
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) chessView.getLayoutParams();
         float leftMargin = layoutParams.leftMargin;
 
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
@@ -517,7 +493,7 @@ public class SheepView extends RelativeLayout {
 
                 float v = (((float) DimensionUtils.dp2px(2* CHESS_SIZE)) * distanceNum) / 100f * animatedValue;
                 layoutParams.leftMargin = (int) (leftMargin - v);
-                iv.setLayoutParams(layoutParams);
+                chessView.setLayoutParams(layoutParams);
             }
         });
         valueAnimator.start();
@@ -568,18 +544,18 @@ public class SheepView extends RelativeLayout {
         });
     }
 
-    private void locationToMargin(ImageView iv,Double[] mLocation,int mDegree){  //坐标转换成marginleft和margintop,层级：最上层为1，依次增加
+    private void locationToMargin(ChessView chessView,Double[] mLocation,int mDegree){  //坐标转换成marginleft和margintop,层级：最上层为1，依次增加
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                 DimensionUtils.dp2px(2* CHESS_SIZE),
                 DimensionUtils.dp2px(2* CHESS_SIZE)
         );
         layoutParams.topMargin = -DimensionUtils.dp2px(2* CHESS_SIZE); // 负数是实例化到界面外面，防止动画播放前被看见
-        iv.setLayoutParams(layoutParams);
+        chessView.setLayoutParams(layoutParams);
 
-        iv.setTag(R.id.sheepview_imageview_degree,mDegree);
-        iv.setTag(R.id.sheepview_imageview_location,mLocation);
-        iv.setBackground(AppCompatResources.getDrawable(getContext(), R.drawable.bg_chessview));
-        iv.setPadding(
+        chessView.setTag(R.id.sheepview_imageview_degree,mDegree);
+        chessView.setTag(R.id.sheepview_imageview_location,mLocation);
+        chessView.setBackground(AppCompatResources.getDrawable(getContext(), R.drawable.bg_chessview));
+        chessView.setPadding(
                 DimensionUtils.dp2px(5),
                 DimensionUtils.dp2px(5),
                 DimensionUtils.dp2px(5),
@@ -590,14 +566,14 @@ public class SheepView extends RelativeLayout {
     private void judgeCanClick(boolean onlyChangeViewClickable){   //判断剩下棋子是否可以点击 ,无法点击background设置蒙版
         for (int i = 0; i < showChessList.size(); i++) {
             boolean canClick = true;
-            List<ImageView> mlist = new ArrayList<>(showChessList);
+            List<ChessView> mlist = new ArrayList<>(showChessList);
             mlist.remove(i);
 
             Double[] ilocation = (Double[]) showChessList.get(i).getTag(R.id.sheepview_imageview_location);
             int idegree = ((int) showChessList.get(i).getTag(R.id.sheepview_imageview_degree));
-            for (ImageView imageView : mlist) {
-                Double[] lt = (Double[]) imageView.getTag(R.id.sheepview_imageview_location);
-                int dg = ((int) imageView.getTag(R.id.sheepview_imageview_degree));
+            for (ChessView chessView : mlist) {
+                Double[] lt = (Double[]) chessView.getTag(R.id.sheepview_imageview_location);
+                int dg = ((int) chessView.getTag(R.id.sheepview_imageview_degree));
                 if (idegree > dg){
                     if (Math.abs(lt[0]-ilocation[0])<2&&Math.abs(lt[1]-ilocation[1])<2){
                         canClick = false;
@@ -619,14 +595,14 @@ public class SheepView extends RelativeLayout {
         }
     }
 
-    private boolean judgeNeedToDark(ImageView iv){   //判断是否需要变暗
+    private boolean judgeNeedToDark(ChessView iv){   //判断是否需要变暗
         boolean needDark = false;
 
         Double[] ilocation = (Double[]) iv.getTag(R.id.sheepview_imageview_location);
         int idegree = ((int) iv.getTag(R.id.sheepview_imageview_degree));
-        for (ImageView imageView : showChessList) {
-            Double[] lt = (Double[]) imageView.getTag(R.id.sheepview_imageview_location);
-            int dg = ((int) imageView.getTag(R.id.sheepview_imageview_degree));
+        for (ChessView chessView : showChessList) {
+            Double[] lt = (Double[]) chessView.getTag(R.id.sheepview_imageview_location);
+            int dg = ((int) chessView.getTag(R.id.sheepview_imageview_degree));
             if (idegree > dg){
                 if (Math.abs(lt[0]-ilocation[0])<2&&Math.abs(lt[1]-ilocation[1])<2){
                     needDark = true;
@@ -636,25 +612,6 @@ public class SheepView extends RelativeLayout {
         }
 
         return needDark;
-    }
-
-    private void initResourcesList(){
-        resourcesList.add(R.mipmap.ic_chess_1);
-        resourcesList.add(R.mipmap.ic_chess_2);
-        resourcesList.add(R.mipmap.ic_chess_3);
-        resourcesList.add(R.mipmap.ic_chess_4);
-        resourcesList.add(R.mipmap.ic_chess_5);
-        resourcesList.add(R.mipmap.ic_chess_6);
-        resourcesList.add(R.mipmap.ic_chess_7);
-        resourcesList.add(R.mipmap.ic_chess_8);
-        resourcesList.add(R.mipmap.ic_chess_9);
-        resourcesList.add(R.mipmap.ic_chess_10);
-        resourcesList.add(R.mipmap.ic_chess_11);
-        resourcesList.add(R.mipmap.ic_chess_12);
-        resourcesList.add(R.mipmap.ic_chess_13);
-        resourcesList.add(R.mipmap.ic_chess_14);
-        resourcesList.add(R.mipmap.ic_chess_15);
-        resourcesList.add(R.mipmap.ic_chess_16);
     }
 
     private void initGrassView(){

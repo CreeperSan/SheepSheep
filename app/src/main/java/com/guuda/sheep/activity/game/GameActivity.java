@@ -226,4 +226,12 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        if (dialogSetting.isShowing()) {
+            dialogSetting.dismiss();
+        } else {
+            dialogSetting.show();
+        }
+    }
 }

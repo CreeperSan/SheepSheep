@@ -22,7 +22,7 @@ public class GameSettingDialog extends BaseDialog {
 
         initView();
 
-        setCancelable(false);
+        setCancelable(true);
         setCanceledOnTouchOutside(false);
     }
 

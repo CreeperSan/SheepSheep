@@ -74,21 +74,21 @@ public class MainActivity extends AppCompatActivity {
         initReceiver();
 
         //通关在首页增加一只
-        LiveEventBus.get("succeed", Boolean.class)
-                .observe(this, bo -> {
-                        listSucceedNum = listSucceedNum +1;
-                        ImageView iv = new ImageView(MainActivity.this);
-                        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(DimensionUtils.dp2px(60), DimensionUtils.dp2px(60));
-                        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                        layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 - DimensionUtils.dp2px( 50) - Math.random()* DimensionUtils.dp2px(160) + DimensionUtils.dp2px(80));
-                        layoutParams.bottomMargin = (int) (DimensionUtils.getScreenH()/5 - Math.random()* DimensionUtils.dp2px(60) + DimensionUtils.dp2px(30));
-                        iv.setLayoutParams(layoutParams);
-                        binding.rl.addView(iv);
-
-                        Glide.with(MainActivity.this)
-                                .load(awardSheepResourcesList.get(listSucceedNum -1))
-                                .into(iv);
-                });
+//        LiveEventBus.get("succeed", Boolean.class)
+//                .observe(this, bo -> {
+//                        listSucceedNum = listSucceedNum +1;
+//                        ImageView iv = new ImageView(MainActivity.this);
+//                        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(DimensionUtils.dp2px(60), DimensionUtils.dp2px(60));
+//                        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+//                        layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 - DimensionUtils.dp2px( 50) - Math.random()* DimensionUtils.dp2px(160) + DimensionUtils.dp2px(80));
+//                        layoutParams.bottomMargin = (int) (DimensionUtils.getScreenH()/5 - Math.random()* DimensionUtils.dp2px(60) + DimensionUtils.dp2px(30));
+//                        iv.setLayoutParams(layoutParams);
+//                        binding.rl.addView(iv);
+//
+//                        Glide.with(MainActivity.this)
+//                                .load(awardSheepResourcesList.get(listSucceedNum -1))
+//                                .into(iv);
+//                });
 
         //游戏页面onresume
         LiveEventBus.get("GameOnresume", Boolean.class)
@@ -226,23 +226,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void startAnim(){
 
-        //以获取的战利品羊gif
-        listSucceedNum = MMKV.defaultMMKV().decodeInt("specialSheepListNum");
-        if (listSucceedNum > 0){
-            for (Integer resources : awardSheepResourcesList) {
-                ImageView iv = new ImageView(MainActivity.this);
-                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(DimensionUtils.dp2px(60), DimensionUtils.dp2px(60));
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 - DimensionUtils.dp2px(50) - Math.random()* DimensionUtils.dp2px(160) + DimensionUtils.dp2px(80));
-                layoutParams.bottomMargin = (int) (DimensionUtils.getScreenH()/5 - Math.random()* DimensionUtils.dp2px(60) + DimensionUtils.dp2px(30));
-                iv.setLayoutParams(layoutParams);
-                binding.rl.addView(iv);
-
-                Glide.with(this)
-                        .load(resources)
-                        .into(iv);
-            }
-        }
+//        //以获取的战利品羊gif
+//        listSucceedNum = MMKV.defaultMMKV().decodeInt("specialSheepListNum");
+//        if (listSucceedNum > 0){
+//            for (Integer resources : awardSheepResourcesList) {
+//                ImageView iv = new ImageView(MainActivity.this);
+//                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(DimensionUtils.dp2px(60), DimensionUtils.dp2px(60));
+//                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+//                layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 - DimensionUtils.dp2px(50) - Math.random()* DimensionUtils.dp2px(160) + DimensionUtils.dp2px(80));
+//                layoutParams.bottomMargin = (int) (DimensionUtils.getScreenH()/5 - Math.random()* DimensionUtils.dp2px(60) + DimensionUtils.dp2px(30));
+//                iv.setLayoutParams(layoutParams);
+//                binding.rl.addView(iv);
+//
+//                Glide.with(this)
+//                        .load(resources)
+//                        .into(iv);
+//            }
+//        }
     }
 
     private void addGrassLocation(List<Integer[]> list,int repeatNum){  //判断是否添加成功，如果大于100次循环就强制结束
