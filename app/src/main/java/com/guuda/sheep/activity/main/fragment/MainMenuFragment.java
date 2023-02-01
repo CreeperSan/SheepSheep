@@ -9,9 +9,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.guuda.sheep.R;
 import com.guuda.sheep.activity.main.dialog.MainProfileDialog;
-import com.guuda.sheep.activity.main.dialog.MainSettingDialog;
+import com.guuda.sheep.activity.game.dialog.GameSettingDialog;
 import com.guuda.sheep.activity.main.viewmodel.MainViewModel;
 import com.guuda.sheep.activity.main.viewstate.MainMenuViewState;
 import com.guuda.sheep.audio.AudioController;
@@ -76,7 +75,7 @@ public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
         binding.head.settingBtn.setOnClickListener(v -> {
             Context context = binding.getRoot().getContext();
 
-            MainSettingDialog settingDialog = new MainSettingDialog(context);
+            GameSettingDialog settingDialog = new GameSettingDialog(context);
             settingDialog.show();
         });
 

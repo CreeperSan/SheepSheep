@@ -54,7 +54,7 @@
         <ImageView
             android:id="@+id/btnSoundOff"
             android:layout_marginStart="16dp"
-            android:src="@drawable/ic_music_white_24"
+            android:src="@drawable/ic_music_off_white_24"
             android:layout_width="48dp"
             android:layout_height="48dp"
             app:tint="@color/black"/>

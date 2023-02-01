@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
 import com.guuda.sheep.SettingActivity;
 import com.guuda.sheep.activity.game.dialog.GameFailDialog;
-import com.guuda.sheep.activity.main.dialog.MainSettingDialog;
+import com.guuda.sheep.activity.game.dialog.GameSettingDialog;
 import com.guuda.sheep.activity.main.receiver.GameLevelNotifyListener;
 import com.guuda.sheep.activity.main.receiver.GameLevelReceiver;
 import com.guuda.sheep.pref.PrefManager;
@@ -41,6 +41,7 @@ public class GameActivity extends AppCompatActivity {
     GamePassDialog dialogPass;
     GameFailDialog dialogFail;
     GameCompleteDialog dialogComplete;
+    GameSettingDialog dialogSetting;
 
     private PrefUpdateListener<Boolean> mutePrefListener;
 
@@ -107,11 +108,14 @@ public class GameActivity extends AppCompatActivity {
                     sendBroadcast(intent);
                 }
 
+                AudioController.instance.playEffect(AudioController.SOUND_COMPLETE);
             }
 
             @Override
             public void onLevelFail() {
                 dialogFail.show();
+
+                AudioController.instance.playEffect(AudioController.SOUND_FAIL);
             }
 
         });
@@ -167,6 +171,36 @@ public class GameActivity extends AppCompatActivity {
             finish();
         });
 
+        dialogSetting = new GameSettingDialog(this);
+        dialogSetting.setListener(new GameSettingDialog.EventListener() {
+            @Override
+            public void onSoundOn() {
+                AudioController.instance.unmute();
+                PrefManager.instance.setMute(false);
+            }
+
+            @Override
+            public void onSoundOff() {
+                AudioController.instance.mute();
+                PrefManager.instance.setMute(true);
+            }
+
+            @Override
+            public void onResume() {
+
+            }
+
+            @Override
+            public void onRestart() {
+                binding.sheepView.loadLevel(level, DEFAULT_DEGREE_NUM);
+            }
+
+            @Override
+            public void onGiveUp() {
+                finish();
+            }
+        });
+
     }
 
     private void refreshMuteButton(ImageView imageView) {
@@ -188,8 +222,7 @@ public class GameActivity extends AppCompatActivity {
 
         // 设置按钮
         binding.head.settingBtn.setOnClickListener(v -> {
-            MainSettingDialog dialog = new MainSettingDialog(this);
-            dialog.show();
+            dialogSetting.show();
         });
     }
 
