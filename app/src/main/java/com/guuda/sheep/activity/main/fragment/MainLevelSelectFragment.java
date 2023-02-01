@@ -46,17 +46,9 @@ public class MainLevelSelectFragment extends BaseMainFragment<MainLevelSelectVie
             }
         });
 
-        binding.level2TV.setOnClickListener(new ViewModelClickListener() {
-            @Override
-            public void onClick(MainViewModel viewModel) {
-                Activity activity = getActivity();
-                if (activity == null) {
-                    return;
-                }
-                viewModel.toGame(activity, 2);
-                viewModel.toMenu();
-            }
-        });
+        binding.level2TV.setOnClickListener(null);
+        binding.level2TV.setFocusable(false);
+        binding.level2TV.setClickable(false);
 
         binding.backBtn.setOnClickListener(new ViewModelClickListener() {
             @Override
@@ -79,13 +71,27 @@ public class MainLevelSelectFragment extends BaseMainFragment<MainLevelSelectVie
         });
         PrefManager.instance.addMuteChangeListener(mutePrefListener);
 
-        // 第二关锁
+        // 第二关锁以及点击事件
         MainViewModel mainViewModel = getViewModel();
         if (mainViewModel != null) {
             UserInfo userInfo = mainViewModel.getCurrentUserInfo().getValue();
             if (userInfo != null) {
                 boolean isUnlockLevel2 = userInfo.reachLevel >=1;
                 binding.lockLevel2.setVisibility(isUnlockLevel2 ? View.GONE : View.VISIBLE);
+
+                if (isUnlockLevel2) {
+                    binding.level2TV.setOnClickListener(new ViewModelClickListener() {
+                        @Override
+                        public void onClick(MainViewModel viewModel) {
+                            Activity activity = getActivity();
+                            if (activity == null) {
+                                return;
+                            }
+                            viewModel.toGame(activity, 2);
+                            viewModel.toMenu();
+                        }
+                    });
+                }
             }
         }
 

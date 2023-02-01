@@ -44,7 +44,7 @@ public class GameActivity extends AppCompatActivity {
 
     private PrefUpdateListener<Boolean> mutePrefListener;
 
-    private int barrierNum = 1;  //关卡
+    private int level = 1;  //关卡
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,18 +72,18 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void initIntent() {
-        barrierNum = getIntent().getIntExtra(INTENT_LEVEL, barrierNum);
+        level = getIntent().getIntExtra(INTENT_LEVEL, level);
     }
 
     private void initView(){
         // 初始化时载入关卡
-        binding.sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
+        binding.sheepView.loadLevel(level, DEFAULT_DEGREE_NUM);
 
         binding.sheepView.setGameProgressListener(new SheepView.GameProgressListener() {
             @Override
             public void onLevelPass() {
-                if (1 == barrierNum){
-                    barrierNum = barrierNum + 1;
+                if (1 == level){
+                    level = level + 1;
 
                     dialogPass.show();
 
@@ -118,7 +118,7 @@ public class GameActivity extends AppCompatActivity {
 
         LiveEventBus.get("plieNum", Integer.class)
                 .observe(this, num -> {
-                    binding.sheepView.setBarrierNum(2,num);
+                    binding.sheepView.loadLevel(2,num);
                 });
     }
 
@@ -141,7 +141,7 @@ public class GameActivity extends AppCompatActivity {
         binding.titleTV.setOnClickListener(new NoFastClickListener() {
             @Override
             protected void onSingleClick() {
-                if (barrierNum == 2){
+                if (level == 2){
                     startActivity(new Intent(GameActivity.this, SettingActivity.class));
                 }
             }
@@ -152,13 +152,13 @@ public class GameActivity extends AppCompatActivity {
         dialogPass = new GamePassDialog(this);
         dialogPass.setOnNextLevelListener(v -> {
             refreshTimeText();
-            binding.sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
+            binding.sheepView.loadLevel(level, DEFAULT_DEGREE_NUM);
         });
 
         dialogFail = new GameFailDialog(this);
         dialogFail.setOnBackListener(v -> {
             dialogPass.dismiss();
-            binding.sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
+            binding.sheepView.loadLevel(level, DEFAULT_DEGREE_NUM);
         });
 
         dialogComplete = new GameCompleteDialog(this);

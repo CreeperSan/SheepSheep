@@ -66,7 +66,6 @@ public class SheepView extends RelativeLayout {
 
     private final List<Integer[]> mGrassLocationList;  //草坐标列表
 
-    private int barrierNum = 1;  //关卡
     private GameProgressListener gameProgressListener;
 
     public SheepView(Context context) {
@@ -137,8 +136,7 @@ public class SheepView extends RelativeLayout {
         }
     }
 
-    public void setBarrierNum(int barrierNum,int mDegreeNum) {
-        this.barrierNum = barrierNum;
+    public void loadLevel(int barrierNum, int mDegreeNum) {
         this.degreeNum = mDegreeNum;
 
         if (showChessList.size()>0){
