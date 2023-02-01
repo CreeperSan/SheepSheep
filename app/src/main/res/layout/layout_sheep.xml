@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
+    <RelativeLayout
+        android:id="@+id/grassLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </RelativeLayout>
+
     <com.coorchice.library.SuperTextView
         android:id="@+id/stv_container"
         android:layout_width="290dp"

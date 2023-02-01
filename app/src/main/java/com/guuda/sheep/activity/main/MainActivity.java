@@ -1,9 +1,6 @@
 package com.guuda.sheep.activity.main;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.IntentFilter;
@@ -18,6 +15,7 @@ import com.guuda.sheep.R;
 import com.guuda.sheep.activity.main.receiver.GameLevelNotifyListener;
 import com.guuda.sheep.activity.main.receiver.GameLevelReceiver;
 import com.guuda.sheep.database.entity.UserInfo;
+import com.guuda.sheep.databinding.ActivityMainBinding;
 import com.guuda.sheep.repository.AccountRepository;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.guuda.sheep.activity.BaseFragment;
@@ -35,7 +33,7 @@ import com.guuda.sheep.activity.main.viewstate.MainRankViewState;
 import com.guuda.sheep.activity.main.viewstate.MainRegisterViewState;
 import com.guuda.sheep.audio.AudioController;
 import com.guuda.sheep.customview.GrassView;
-import com.guuda.sheep.utils.PUtil;
+import com.guuda.sheep.utils.DimensionUtils;
 import com.tencent.mmkv.MMKV;
 
 import java.util.ArrayList;
@@ -44,14 +42,13 @@ import java.util.List;
 import io.reactivex.rxjava3.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
-    ViewDataBinding binding;
+    ActivityMainBinding binding;
 
-    private List<GrassView> GrassViewList;  //草list
-    private List<Integer[]> mGrasslocationList;  //草坐标列表
-    private int grassNum = 28;  //草的数量
+    private List<Integer[]> mGrassPositionList;  //草坐标列表
+    private final static int GRASS_NUM = 28;  //草的数量
 
-    private List<Integer> awardSheepRescoureList; //通关羊gif
-    private int listSucceednum;  //通关羊数量
+    private List<Integer> awardSheepResourcesList; //通关羊gif
+    private int listSucceedNum;  //通关羊数量
 
     private BaseFragment currentFragment;
 
@@ -64,43 +61,39 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+
+        setContentView(binding.getRoot());
+
         MMKV.initialize(this);
-        GrassViewList = new ArrayList<>();
-        mGrasslocationList = new ArrayList<>();
-        awardSheepRescoureList = new ArrayList<>();
-        initAwardSheepRescoure();
+        mGrassPositionList = new ArrayList<>();
+        awardSheepResourcesList = new ArrayList<>();
+        initAwardSheepResources();
         initGrassView();
         initViewModel();
         initReceiver();
 
         //通关在首页增加一只
         LiveEventBus.get("succeed", Boolean.class)
-                .observe(this, new Observer<Boolean>() {
-                    @Override
-                    public void onChanged(Boolean bo) {
-                        listSucceednum = listSucceednum+1;
+                .observe(this, bo -> {
+                        listSucceedNum = listSucceedNum +1;
                         ImageView iv = new ImageView(MainActivity.this);
-                        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(PUtil.dip2px(MainActivity.this, 60), PUtil.dip2px(MainActivity.this, 60));
+                        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(DimensionUtils.dp2px(60), DimensionUtils.dp2px(60));
                         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                        layoutParams.leftMargin = (int) (PUtil.getScreenW(MainActivity.this)/2 - PUtil.dip2px(MainActivity.this, 50) - Math.random()*PUtil.dip2px(MainActivity.this, 160) + PUtil.dip2px(MainActivity.this, 80));
-                        layoutParams.bottomMargin = (int) (PUtil.getScreenH(MainActivity.this)/5 - Math.random()*PUtil.dip2px(MainActivity.this, 60) + PUtil.dip2px(MainActivity.this, 30));
+                        layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 - DimensionUtils.dp2px( 50) - Math.random()* DimensionUtils.dp2px(160) + DimensionUtils.dp2px(80));
+                        layoutParams.bottomMargin = (int) (DimensionUtils.getScreenH()/5 - Math.random()* DimensionUtils.dp2px(60) + DimensionUtils.dp2px(30));
                         iv.setLayoutParams(layoutParams);
-                        ((RelativeLayout)findViewById(R.id.rl)).addView(iv);
+                        binding.rl.addView(iv);
 
                         Glide.with(MainActivity.this)
-                                .load(awardSheepRescoureList.get(listSucceednum-1))
+                                .load(awardSheepResourcesList.get(listSucceedNum -1))
                                 .into(iv);
-                    }
                 });
 
         //游戏页面onresume
         LiveEventBus.get("GameOnresume", Boolean.class)
-                .observe(this, new Observer<Boolean>() {
-                    @Override
-                    public void onChanged(Boolean boo) {
+                .observe(this, boo -> {
                         AudioController.instance.resumeBackground();
-                    }
                 });
 
         currentFragment = new MainLoginFragment();
@@ -111,17 +104,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initGrassView(){
-        for (int i = 0; i < grassNum; i++) {
-            addGrassLocation(mGrasslocationList, 0);
+        binding.grassLayout.removeAllViews();
+
+        for (int i = 0; i < GRASS_NUM; i++) {
+            addGrassLocation(mGrassPositionList, 0);
         }
-        for (Integer[] integers : mGrasslocationList) {
+        for (Integer[] integers : mGrassPositionList) {
             GrassView grassView = new GrassView(this);
-            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(PUtil.dip2px(this, 30), PUtil.dip2px(this, 30));
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(DimensionUtils.dp2px(30), DimensionUtils.dp2px(30));
             layoutParams.leftMargin = integers[0];
             layoutParams.topMargin = integers[1];
             grassView.setLayoutParams(layoutParams);
-            GrassViewList.add(grassView);
-            ((RelativeLayout)findViewById(R.id.rl)).addView(grassView);
+            binding.grassLayout.addView(grassView);
         }
 
     }
@@ -129,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
     public MainViewModel getViewModel() {
         if (mViewModel == null) {
-            mViewModel = new ViewModelProvider(this).get(MainViewModel.class);;
+            mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         }
         return mViewModel;
     }
@@ -228,42 +222,38 @@ public class MainActivity extends AppCompatActivity {
     private void startAnim(){
 
         //以获取的战利品羊gif
-        listSucceednum = MMKV.defaultMMKV().decodeInt("specialSheepListNum");
-        if (listSucceednum>0){
-            List<Integer> mList = new ArrayList<>();
-            for (int i = 0; i < listSucceednum; i++) {
-                mList.add(awardSheepRescoureList.get(i));
-            }
-            for (Integer recoures : mList) {
+        listSucceedNum = MMKV.defaultMMKV().decodeInt("specialSheepListNum");
+        if (listSucceedNum > 0){
+            for (Integer resources : awardSheepResourcesList) {
                 ImageView iv = new ImageView(MainActivity.this);
-                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(PUtil.dip2px(this, 60), PUtil.dip2px(this, 60));
+                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(DimensionUtils.dp2px(60), DimensionUtils.dp2px(60));
                 layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                layoutParams.leftMargin = (int) (PUtil.getScreenW(this)/2 - PUtil.dip2px(this, 50) - Math.random()*PUtil.dip2px(this, 160) + PUtil.dip2px(this, 80));
-                layoutParams.bottomMargin = (int) (PUtil.getScreenH(this)/5 - Math.random()*PUtil.dip2px(this, 60) + PUtil.dip2px(this, 30));
+                layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 - DimensionUtils.dp2px(50) - Math.random()* DimensionUtils.dp2px(160) + DimensionUtils.dp2px(80));
+                layoutParams.bottomMargin = (int) (DimensionUtils.getScreenH()/5 - Math.random()* DimensionUtils.dp2px(60) + DimensionUtils.dp2px(30));
                 iv.setLayoutParams(layoutParams);
-                ((RelativeLayout)findViewById(R.id.rl)).addView(iv);
+                binding.rl.addView(iv);
 
                 Glide.with(this)
-                        .load(recoures)
+                        .load(resources)
                         .into(iv);
             }
         }
     }
 
     private void addGrassLocation(List<Integer[]> list,int repeatNum){  //判断是否添加成功，如果大于100次循环就强制结束
-        Integer[] mGrasslocation = {(int) (Math.round(Math.random() * PUtil.getScreenW(this))),(int) (Math.round(Math.random() * (PUtil.getScreenH(this) - PUtil.dip2px(this,90))))};
+        Integer[] grassLocation = {(int) (Math.round(Math.random() * DimensionUtils.getScreenW())),(int) (Math.round(Math.random() * (DimensionUtils.getScreenH() - DimensionUtils.dp2px(90))))};
         //判断是否有重复
         boolean isRepeat = false;
         for (Integer[] integers : list) {
-            if (Math.abs(mGrasslocation[0]-integers[0])<PUtil.dip2px(this, 30)
-                    &&Math.abs(mGrasslocation[1]-integers[1])<PUtil.dip2px(this, 30)){
+            if (Math.abs(grassLocation[0]-integers[0])< DimensionUtils.dp2px(30)
+                    &&Math.abs(grassLocation[1]-integers[1])< DimensionUtils.dp2px(30)){
                 isRepeat = true;
                 break;
             }
         }
 
         if (!isRepeat){
-            list.add(mGrasslocation);
+            list.add(grassLocation);
         }else {
             repeatNum = repeatNum + 1;
             if (repeatNum>100){
@@ -273,25 +263,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initAwardSheepRescoure(){
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep2);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep3);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep4);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep5);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep6);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep7);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep8);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep9);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep10);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep11);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep12);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep13);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep14);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep15);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep16);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep17);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep18);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep19);
+    private void initAwardSheepResources(){
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep2);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep3);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep4);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep5);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep6);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep7);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep8);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep9);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep10);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep11);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep12);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep13);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep14);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep15);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep16);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep17);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep18);
+        awardSheepResourcesList.add(R.mipmap.ic_award_sheep19);
     }
 
 

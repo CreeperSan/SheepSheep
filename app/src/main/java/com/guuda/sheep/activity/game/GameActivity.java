@@ -32,24 +32,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * @ProjectName: MySunSheep
- * @ClassName: GameActivity
- * @Author: littletree
- * @CreateDate: 2022/10/26/026 10:42
- */
+
 public class GameActivity extends AppCompatActivity {
     private final static int DEFAULT_DEGREE_NUM = 1;
 
     ActivityGameBinding binding;
 
-    //过关dialog
+    // 弹窗
     GamePassDialog dialogPass;
     GameFailDialog dialogFail;
-
-    //通关dialog
     GameCompleteDialog dialogComplete;
-    List<Integer> awardSheepRescoureList;
 
     private PrefUpdateListener<Boolean> mutePrefListener;
 
@@ -122,11 +114,8 @@ public class GameActivity extends AppCompatActivity {
         });
 
         LiveEventBus.get("plieNum", Integer.class)
-                .observe(this, new Observer<Integer>() {
-                    @Override
-                    public void onChanged(Integer num) {
+                .observe(this, num -> {
                         sheepView.setBarrierNum(2,num);
-                    }
                 });
     }
 
@@ -175,8 +164,6 @@ public class GameActivity extends AppCompatActivity {
             finish();
         });
 
-        awardSheepRescoureList = new ArrayList<>();
-        initAwardSheepRescoure();
     }
 
     private void refreshMuteButton(ImageView imageView) {
@@ -203,24 +190,4 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    private void initAwardSheepRescoure(){
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep2);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep3);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep4);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep5);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep6);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep7);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep8);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep9);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep10);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep11);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep12);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep13);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep14);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep15);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep16);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep17);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep18);
-        awardSheepRescoureList.add(R.mipmap.ic_award_sheep19);
-    }
 }
