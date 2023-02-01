@@ -23,7 +23,6 @@ import com.guuda.sheep.utils.DimensionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +36,12 @@ import java.util.Map;
 public class SheepView extends RelativeLayout {
     private Context mContext;
     private View sheepLayout;
-    private RelativeLayout rlAlllayout;
+    private RelativeLayout rlAllLayout;
     private RelativeLayout grassLayout;
-    private SuperTextView stv_container;
+    private SuperTextView chessBackground;
+    private ImageView toolBringToOutsideView;
+    private ImageView toolRecallView;
+    private ImageView toolShuffleView;
 
     private int grassNum = 28;  //草的数量
 
@@ -64,17 +66,16 @@ public class SheepView extends RelativeLayout {
 
     private final List<Integer[]> mGrassLocationList;  //草坐标列表
 
-    private int barrierNum;  //关卡
+    private int barrierNum = 1;  //关卡
     private GameProgressListener gameProgressListener;
 
-    public SheepView(Context context,int getBarrierNum) {
-        this(context,null,getBarrierNum);
+    public SheepView(Context context) {
+        this(context,null);
     }
 
-    public SheepView(Context context, @Nullable AttributeSet attrs,int getBarrierNum) {
+    public SheepView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
-        barrierNum = getBarrierNum;
         mGrassLocationList = new ArrayList<>();
         showChessList = new ArrayList<>();
         takeinChessList = new ArrayList<>();
@@ -82,35 +83,27 @@ public class SheepView extends RelativeLayout {
         locationList = new ArrayList<>();
         iconList = new ArrayList<>();
         degreeList = new ArrayList<>();
-        initView(context, attrs);
+
+        initView(context);
         initResourcesList();
         initGrassView();
-        if (1 == barrierNum){
-            initFirstLocationList();
-            initFirstBarrier();
-        }else {
-            initSecondLocationList();
-            initSecondBarrier();
-        }
 
-        //倒序
-        Collections.reverse(locationList);
-        Collections.reverse(iconList);
-        Collections.reverse(degreeList);
-        initBarrier();
-        judgeCanClick(false);
     }
 
-    private void initView(Context context, AttributeSet attrs) {
+    private void initView(Context context) {
         sheepLayout = inflate(context,R.layout.layout_sheep, this);
-        rlAlllayout = sheepLayout.findViewById(R.id.rl_alllayout);
+        rlAllLayout = sheepLayout.findViewById(R.id.rl_alllayout);
         grassLayout = sheepLayout.findViewById(R.id.grassLayout);
-        stv_container = sheepLayout.findViewById(R.id.stv_container);
+        chessBackground = sheepLayout.findViewById(R.id.stv_container);
+        toolBringToOutsideView = sheepLayout.findViewById(R.id.toolBringToOutside);
+        toolRecallView = sheepLayout.findViewById(R.id.toolRecall);
+        toolShuffleView = sheepLayout.findViewById(R.id.toolShuffle);
 
-        LayoutParams layoutParams = (RelativeLayout.LayoutParams)stv_container.getLayoutParams();
+
+        LayoutParams layoutParams = (RelativeLayout.LayoutParams) chessBackground.getLayoutParams();
         layoutParams.width = DimensionUtils.dp2px(CHESS_SIZE *14+10);
         layoutParams.height = DimensionUtils.dp2px(CHESS_SIZE *2+10);
-        stv_container.setLayoutParams(layoutParams);
+        chessBackground.setLayoutParams(layoutParams);
     }
 
     private void initBarrier(){
@@ -131,7 +124,7 @@ public class SheepView extends RelativeLayout {
             });
 
             showChessList.add(imageView);
-            rlAlllayout.addView(imageView);
+            rlAllLayout.addView(imageView);
         }
 
         for (ImageView imageView : showChessList) {
@@ -150,13 +143,13 @@ public class SheepView extends RelativeLayout {
 
         if (showChessList.size()>0){
             for (ImageView iv : showChessList){
-                rlAlllayout.removeView(iv);
+                rlAllLayout.removeView(iv);
             }
         }
 
         if (takeinChessList.size()>0){
             for (ImageView iv : takeinChessList){
-                rlAlllayout.removeView(iv);
+                rlAllLayout.removeView(iv);
             }
         }
 
@@ -397,11 +390,11 @@ public class SheepView extends RelativeLayout {
                             if (finishNum == 3){   //3个动画都结束
                                 Log.i("孙", "过程1: ");
                                 if (takeinChessList.size() == 3){  //当前只有3个，无需左滑动画
-                                    rlAlllayout.post(new Runnable() {
+                                    rlAllLayout.post(new Runnable() {
                                         @Override
                                         public void run() {
                                             for (Integer x : mlist){
-                                                rlAlllayout.removeView(takeinChessList.get(x));
+                                                rlAllLayout.removeView(takeinChessList.get(x));
                                             }
                                             List<ImageView> newlist = new ArrayList<>();
                                             takeinChessList = newlist;
@@ -498,11 +491,11 @@ public class SheepView extends RelativeLayout {
                 leftFinishNum = leftFinishNum + 1;
                 if (leftFinishNum == (ivAllList.size()-3)){  //所有左滑动画结束
                     Log.i("孙", "过程3: ");
-                    rlAlllayout.post(new Runnable() {
+                    rlAllLayout.post(new Runnable() {
                         @Override
                         public void run() {
                             for (Integer x : mlist) {
-                                rlAlllayout.removeView(takeinChessList.get(x));
+                                rlAllLayout.removeView(takeinChessList.get(x));
                             }
 
                             List<ImageView> newList = new ArrayList<>();

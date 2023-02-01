@@ -53,8 +53,10 @@ public class MainViewModel extends ViewModel {
         viewState.postValue(new MainLoginViewState());
     }
 
-    public void toGame(@NonNull Activity activity) {
-        activity.startActivity(new Intent(activity, GameActivity.class));
+    public void toGame(@NonNull Activity activity, int level) {
+        Intent intent = new Intent(activity, GameActivity.class);
+        intent.putExtra(GameActivity.INTENT_LEVEL, level);
+        activity.startActivity(intent);
     }
 
     public void toLevelSelect() {

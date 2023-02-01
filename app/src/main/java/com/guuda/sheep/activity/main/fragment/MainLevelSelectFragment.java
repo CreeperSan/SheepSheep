@@ -41,7 +41,7 @@ public class MainLevelSelectFragment extends BaseMainFragment<MainLevelSelectVie
                 if (activity == null) {
                     return;
                 }
-                viewModel.toGame(activity);
+                viewModel.toGame(activity, 1);
                 viewModel.toMenu();
             }
         });
@@ -53,7 +53,7 @@ public class MainLevelSelectFragment extends BaseMainFragment<MainLevelSelectVie
                 if (activity == null) {
                     return;
                 }
-                viewModel.toGame(activity);
+                viewModel.toGame(activity, 2);
                 viewModel.toMenu();
             }
         });

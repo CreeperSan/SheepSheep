@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
@@ -28,12 +27,12 @@ import com.guuda.sheep.activity.game.dialog.GamePassDialog;
 import com.guuda.sheep.activity.game.dialog.GameCompleteDialog;
 import com.tencent.mmkv.MMKV;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 
 public class GameActivity extends AppCompatActivity {
+    public static final String INTENT_LEVEL = "level";
+
     private final static int DEFAULT_DEGREE_NUM = 1;
 
     ActivityGameBinding binding;
@@ -46,7 +45,6 @@ public class GameActivity extends AppCompatActivity {
     private PrefUpdateListener<Boolean> mutePrefListener;
 
     private int barrierNum = 1;  //关卡
-    SheepView sheepView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +55,7 @@ public class GameActivity extends AppCompatActivity {
 
         AudioController.instance.playBackground(AudioController.BACKGROUND_GAME);
 
+        initIntent();
         initDialog();
         initView();
         initTitle();
@@ -72,11 +71,15 @@ public class GameActivity extends AppCompatActivity {
         PrefManager.instance.removeMuteChangeListener(mutePrefListener);
     }
 
-    private void initView(){
-        sheepView = new SheepView(GameActivity.this, barrierNum);
-        binding.rl.addView(sheepView);
+    private void initIntent() {
+        barrierNum = getIntent().getIntExtra(INTENT_LEVEL, barrierNum);
+    }
 
-        sheepView.setGameProgressListener(new SheepView.GameProgressListener() {
+    private void initView(){
+        // 初始化时载入关卡
+        binding.sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
+
+        binding.sheepView.setGameProgressListener(new SheepView.GameProgressListener() {
             @Override
             public void onLevelPass() {
                 if (1 == barrierNum){
@@ -115,7 +118,7 @@ public class GameActivity extends AppCompatActivity {
 
         LiveEventBus.get("plieNum", Integer.class)
                 .observe(this, num -> {
-                        sheepView.setBarrierNum(2,num);
+                    binding.sheepView.setBarrierNum(2,num);
                 });
     }
 
@@ -149,13 +152,13 @@ public class GameActivity extends AppCompatActivity {
         dialogPass = new GamePassDialog(this);
         dialogPass.setOnNextLevelListener(v -> {
             refreshTimeText();
-            sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
+            binding.sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
         });
 
         dialogFail = new GameFailDialog(this);
         dialogFail.setOnBackListener(v -> {
             dialogPass.dismiss();
-            sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
+            binding.sheepView.setBarrierNum(barrierNum, DEFAULT_DEGREE_NUM);
         });
 
         dialogComplete = new GameCompleteDialog(this);

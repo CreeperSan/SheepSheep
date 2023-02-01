@@ -8,6 +8,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <com.guuda.sheep.customview.SheepView
+        android:id="@+id/sheepView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <TextView
         android:id="@+id/titleTV"
         android:paddingStart="26dp"
