@@ -54,8 +54,8 @@ public class SheepView extends RelativeLayout {
     private int degreeNum = 0;  //获取层数 (为0时，从10-MAX_DEGREE中随机获取层数,有传入用传入)
 
     private final long downDelayTime = 500;
-    private final long ToDarkTime = 500;
-    private final long ToLightTime = 500;
+    private final static long DURATION_CHESS_DARKEN = 500;
+    private final static long DURATION_CHESS_LIGHTEN = 500;
     private final long takeinTime = 40;
     private final long leftTime = 40;
     private final long changeTime = 600;
@@ -230,7 +230,7 @@ public class SheepView extends RelativeLayout {
 
     private void startToDarkAnim(ImageView imageView,long delayTime){
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
-        valueAnimator.setDuration(ToDarkTime);
+        valueAnimator.setDuration(DURATION_CHESS_DARKEN);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -246,7 +246,7 @@ public class SheepView extends RelativeLayout {
 
     private void startToLightAnim(ImageView imageView){
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
-        valueAnimator.setDuration(ToLightTime);
+        valueAnimator.setDuration(DURATION_CHESS_LIGHTEN);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
