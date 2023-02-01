@@ -18,6 +18,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 
 import com.coorchice.library.SuperTextView;
 import com.guuda.sheep.R;
+import com.guuda.sheep.activity.game.view.ChessView;
 import com.guuda.sheep.audio.AudioController;
 import com.guuda.sheep.utils.DimensionUtils;
 
@@ -46,9 +47,9 @@ public class SheepView extends RelativeLayout {
     private int grassNum = 28;  //草的数量
 
     private final static int CHESS_SIZE = 24;  //棋子大小的一半
-    private List<ImageView> showChessList;   //棋牌区域image的list
-    private List<ImageView> takeinChessList;   //收纳区image的list
-    private List<Integer> rescoureList;   //图片资源list
+    private List<ChessView> showChessList;   //棋牌区域image的list
+    private List<ChessView> takeinChessList;   //收纳区image的list
+    private List<Integer> resourcesList;   //图片资源list
     private int MAX_DEGREE = 20;  //第二关最多层数
     private final int MAX_CHESS_NUM = 36; //第二关 单层棋子最多数量
     private int degreeNum = 0;  //获取层数 (为0时，从10-MAX_DEGREE中随机获取层数,有传入用传入)
@@ -56,7 +57,7 @@ public class SheepView extends RelativeLayout {
     private final long downDelayTime = 500;
     private final static long DURATION_CHESS_DARKEN = 500;
     private final static long DURATION_CHESS_LIGHTEN = 500;
-    private final long takeinTime = 40;
+    private final long DURATION_TAKEIN = 40;
     private final long leftTime = 40;
     private final long changeTime = 600;
 
@@ -78,7 +79,7 @@ public class SheepView extends RelativeLayout {
         mGrassLocationList = new ArrayList<>();
         showChessList = new ArrayList<>();
         takeinChessList = new ArrayList<>();
-        rescoureList = new ArrayList<>();
+        resourcesList = new ArrayList<>();
         locationList = new ArrayList<>();
         iconList = new ArrayList<>();
         degreeList = new ArrayList<>();
@@ -107,9 +108,9 @@ public class SheepView extends RelativeLayout {
 
     private void initBarrier(){
         for (int i = 0; i < iconList.size(); i++) {
-            ImageView imageView = new ImageView(mContext);
+            ChessView imageView = new ChessView(mContext);
             locationToMargin(imageView,locationList.get(i),degreeList.get(i));
-            imageView.setImageResource(rescoureList.get(iconList.get(i)));
+            imageView.setImageResource(resourcesList.get(iconList.get(i)));
             imageView.setTag(R.id.sheepview_imageview_picrescoure,iconList.get(i));
             imageView.setOnClickListener(new NoFastClickListener() {
                 @Override
@@ -268,7 +269,7 @@ public class SheepView extends RelativeLayout {
         valueAnimator.start();
     }
 
-    private void scaleChangeAnim(ImageView imageView){ //点击后 棋子放大缩小 缩放动画
+    private void scaleChangeAnim(ChessView imageView){ //点击后 棋子放大缩小 缩放动画
         Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.anim_scale);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -289,24 +290,24 @@ public class SheepView extends RelativeLayout {
         imageView.startAnimation(animation);
     }
 
-    private void startTakeinAnim(ImageView imageView){  //放大缩小后，从上方容器到下方容器 移动动画
+    private void startTakeinAnim(ChessView imageView){  //放大缩小后，从上方容器到下方容器 移动动画
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
-        valueAnimator.setDuration(takeinTime);
+        valueAnimator.setDuration(DURATION_TAKEIN);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float animatedValue = (float) valueAnimator.getAnimatedValue();
 
-                int targetLeftMargein = (DimensionUtils.getScreenW()- DimensionUtils.dp2px(14* CHESS_SIZE))/2 + (takeinChessList.size())* DimensionUtils.dp2px(2* CHESS_SIZE);
-                int targettopMargein = DimensionUtils.getScreenH()- DimensionUtils.dp2px(25+2* CHESS_SIZE);
+                int targetLeftMargin = (DimensionUtils.getScreenW()- DimensionUtils.dp2px(14* CHESS_SIZE))/2 + (takeinChessList.size())* DimensionUtils.dp2px(2* CHESS_SIZE);
+                int targetTopMargin = DimensionUtils.getScreenH()- DimensionUtils.dp2px(25+2* CHESS_SIZE);
 
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) imageView.getLayoutParams();
                 int leftMargin = layoutParams.leftMargin;
-                float value1 = (((float) leftMargin)-targetLeftMargein)/100 *animatedValue;
+                float value1 = (((float) leftMargin)-targetLeftMargin)/100 *animatedValue;
                 layoutParams.leftMargin = (int) (leftMargin - value1);
                 int topMargin = layoutParams.topMargin;
-                float value2 = (((float) topMargin)-targettopMargein)/100 *animatedValue;
+                float value2 = (((float) topMargin)-targetTopMargin)/100 *animatedValue;
                 layoutParams.topMargin = (int) (topMargin - value2);
 
                 imageView.setLayoutParams(layoutParams);
@@ -394,8 +395,8 @@ public class SheepView extends RelativeLayout {
                                             for (Integer x : mlist){
                                                 rlAllLayout.removeView(takeinChessList.get(x));
                                             }
-                                            List<ImageView> newlist = new ArrayList<>();
-                                            takeinChessList = newlist;
+
+                                            takeinChessList.clear();
 
                                             //判断上面是否还有，没有即成功
                                             if (showChessList.size() == 0){
@@ -434,7 +435,7 @@ public class SheepView extends RelativeLayout {
 
     }
 
-    private void startLeftAnim(List<ImageView> ivList,List<Integer> mlist){  //被清除的3个序号
+    private void startLeftAnim(List<ChessView> ivList,List<Integer> mlist){  //被清除的3个序号
         for (int i = 0; i < ivList.size(); i++) {
             Log.i("孙", "过程6: ");
             if (i!=mlist.get(0)&&i!=mlist.get(1)&&i!=mlist.get(2)){
@@ -456,7 +457,7 @@ public class SheepView extends RelativeLayout {
     }
 
     int leftFinishNum = 0;
-    private void startLeftSmallAnim(List<ImageView> ivAllList,ImageView iv,int distanceNum,List<Integer> mlist){
+    private void startLeftSmallAnim(List<ChessView> ivAllList,ImageView iv,int distanceNum,List<Integer> mlist){
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) iv.getLayoutParams();
         float leftMargin = layoutParams.leftMargin;
 
@@ -496,7 +497,7 @@ public class SheepView extends RelativeLayout {
                                 rlAllLayout.removeView(takeinChessList.get(x));
                             }
 
-                            List<ImageView> newList = new ArrayList<>();
+                            List<ChessView> newList = new ArrayList<>();
                             for (int i = 0; i < takeinChessList.size(); i++) {
                                 boolean isSame = false;
                                 for (Integer x : mlist) {
@@ -585,22 +586,22 @@ public class SheepView extends RelativeLayout {
     }
 
     private void initResourcesList(){
-        rescoureList.add(R.mipmap.ic_chess_1);
-        rescoureList.add(R.mipmap.ic_chess_2);
-        rescoureList.add(R.mipmap.ic_chess_3);
-        rescoureList.add(R.mipmap.ic_chess_4);
-        rescoureList.add(R.mipmap.ic_chess_5);
-        rescoureList.add(R.mipmap.ic_chess_6);
-        rescoureList.add(R.mipmap.ic_chess_7);
-        rescoureList.add(R.mipmap.ic_chess_8);
-        rescoureList.add(R.mipmap.ic_chess_9);
-        rescoureList.add(R.mipmap.ic_chess_10);
-        rescoureList.add(R.mipmap.ic_chess_11);
-        rescoureList.add(R.mipmap.ic_chess_12);
-        rescoureList.add(R.mipmap.ic_chess_13);
-        rescoureList.add(R.mipmap.ic_chess_14);
-        rescoureList.add(R.mipmap.ic_chess_15);
-        rescoureList.add(R.mipmap.ic_chess_16);
+        resourcesList.add(R.mipmap.ic_chess_1);
+        resourcesList.add(R.mipmap.ic_chess_2);
+        resourcesList.add(R.mipmap.ic_chess_3);
+        resourcesList.add(R.mipmap.ic_chess_4);
+        resourcesList.add(R.mipmap.ic_chess_5);
+        resourcesList.add(R.mipmap.ic_chess_6);
+        resourcesList.add(R.mipmap.ic_chess_7);
+        resourcesList.add(R.mipmap.ic_chess_8);
+        resourcesList.add(R.mipmap.ic_chess_9);
+        resourcesList.add(R.mipmap.ic_chess_10);
+        resourcesList.add(R.mipmap.ic_chess_11);
+        resourcesList.add(R.mipmap.ic_chess_12);
+        resourcesList.add(R.mipmap.ic_chess_13);
+        resourcesList.add(R.mipmap.ic_chess_14);
+        resourcesList.add(R.mipmap.ic_chess_15);
+        resourcesList.add(R.mipmap.ic_chess_16);
     }
 
     private void initGrassView(){
