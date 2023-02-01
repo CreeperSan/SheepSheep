@@ -69,6 +69,10 @@ public class SheepView extends RelativeLayout {
 
     private GameProgressListener gameProgressListener;
 
+    private boolean toolBrightOut = true;
+    private boolean toolRecall = true;
+    private boolean toolShuffle = true;
+
     public SheepView(Context context) {
         this(context,null);
     }
@@ -87,7 +91,7 @@ public class SheepView extends RelativeLayout {
         initView(context);
         initResourcesList();
         initGrassView();
-
+        refreshToolButton();
     }
 
     private void initView(Context context) {
@@ -137,6 +141,29 @@ public class SheepView extends RelativeLayout {
         }
     }
 
+    private void refreshToolButton() {
+        // 道具 - 带到外面
+        toolBringToOutsideView.setAlpha(toolBrightOut ? 1f : 0.5f);
+        toolBringToOutsideView.setOnClickListener(toolBrightOut ? v -> {
+            toolBrightOut = false;
+            refreshToolButton();
+        } : null);
+
+        // 道具 - 撤回
+        toolRecallView.setAlpha(toolRecall ? 1f : 0.5f);
+        toolRecallView.setOnClickListener(toolRecall ? v -> {
+            toolRecall = false;
+            refreshToolButton();
+        } : null);
+
+        // 道具 - 打乱顺序
+        toolShuffleView.setAlpha(toolShuffle ? 1f : 0.5f);
+        toolShuffleView.setOnClickListener(toolShuffle ? v -> {
+            toolShuffle = false;
+            refreshToolButton();
+        } : null);
+    }
+
     public void loadLevel(int barrierNum, int mDegreeNum) {
         this.degreeNum = mDegreeNum;
 
@@ -172,6 +199,12 @@ public class SheepView extends RelativeLayout {
         Collections.reverse(degreeList);
         initBarrier();
         judgeCanClick(false);
+
+        // 刷新按钮
+        toolBrightOut = true;
+        toolRecall = true;
+        toolShuffle = true;
+        refreshToolButton();
     }
 
     private void startDownAnim(ImageView imageView, long delayTime){
