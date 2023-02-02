@@ -2,6 +2,7 @@ package com.guuda.sheep.activity.main.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,14 +10,28 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
 import com.guuda.sheep.activity.main.dialog.MainProfileDialog;
 import com.guuda.sheep.activity.game.dialog.GameSettingDialog;
 import com.guuda.sheep.activity.main.viewmodel.MainViewModel;
 import com.guuda.sheep.activity.main.viewstate.MainMenuViewState;
 import com.guuda.sheep.audio.AudioController;
+import com.guuda.sheep.database.entity.UserInfo;
 import com.guuda.sheep.databinding.FragmentMainMenuBinding;
 import com.guuda.sheep.pref.PrefManager;
 import com.guuda.sheep.pref.PrefUpdateListener;
+import com.guuda.sheep.repository.AccountRepository;
+import com.luck.lib.camerax.utils.FileUtils;
+import com.luck.picture.lib.basic.PictureSelector;
+import com.luck.picture.lib.config.SelectMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.interfaces.OnResultCallbackListener;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
     private FragmentMainMenuBinding binding;
@@ -62,9 +77,69 @@ public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
                 return;
             }
 
-            Context context = binding.getRoot().getContext();
+            Context context = getContext();
+            if (context == null) {
+                return;
+            }
 
-            MainProfileDialog profileDialog = new MainProfileDialog(context, viewModel.getCurrentUserInfo().getValue());
+            UserInfo userInfo = viewModel.getCurrentUserInfo().getValue();
+            if (userInfo == null) {
+                return;
+            }
+
+            MainProfileDialog profileDialog = new MainProfileDialog(context, userInfo);
+            profileDialog.setListener(new MainProfileDialog.OnEventListener() {
+                @Override
+                public void selectAvatar() {
+                    PictureSelector.create(getContext())
+                            .openSystemGallery(SelectMimeType.ofImage())
+                            .forSystemResult(new OnResultCallbackListener<LocalMedia>() {
+                                @Override
+                                public void onCancel() {}
+
+                                @Override
+                                public void onResult(ArrayList<LocalMedia> result) {
+                                    if (result.size() <= 0) {
+                                        return;
+                                    }
+
+                                    Context context = getContext();
+                                    if (context == null) {
+                                        return;
+                                    }
+
+                                    LocalMedia localMedia = result.get(0);
+
+
+                                    profileDialog.setAvatarPath(localMedia.getRealPath());
+                                }
+
+                            });
+                }
+
+                @Override
+                public void onSave(String avatar, String name, long birthdayTimestamp, String location) {
+                    Disposable disposable = Observable.just(0).concatMap(v -> {
+
+                        File file = new File(context.getFilesDir().getAbsolutePath() + "/" + userInfo.id + ".jpg");
+                        FileUtils.copyPath(context, avatar, file.getAbsolutePath());
+
+                        return AccountRepository.updateAvatar(userInfo.username, file.getAbsolutePath());
+                    }).concatMap(v -> {
+                        return AccountRepository.updateNickname(userInfo.username, name);
+                    }).concatMap(v -> {
+                        return AccountRepository.updateBirthday(userInfo.username, birthdayTimestamp);
+                    }).concatMap(v -> {
+                        return AccountRepository.updateLocation(userInfo.username, location);
+                    }).map(val -> {
+                        viewModel.refreshUserInfo();
+                        return true;
+                    }).subscribe(val -> {
+                        Log.e("TAG", String.valueOf(val));
+                    }, Throwable::printStackTrace);
+
+                }
+            });
             profileDialog.show();
         });
 

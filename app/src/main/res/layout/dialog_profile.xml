@@ -12,6 +12,7 @@
         android:padding="16dp">
 
         <ImageView
+            android:scaleType="centerCrop"
             android:id="@+id/avatarIV"
             android:layout_width="52dp"
             android:layout_height="52dp"

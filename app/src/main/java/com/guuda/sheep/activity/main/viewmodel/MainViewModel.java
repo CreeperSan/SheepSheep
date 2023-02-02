@@ -36,6 +36,17 @@ public class MainViewModel extends ViewModel {
         return currentUserInfo;
     }
 
+    public void refreshUserInfo() {
+        Disposable disposable = AccountRepository.getUserInfo().subscribe(userInfo -> {
+            UserInfo tmpInfo = userInfo.obj;;
+            if (tmpInfo == null) {
+                return;
+            }
+            currentUserInfo.postValue(tmpInfo);
+        }, Throwable::printStackTrace);
+
+    }
+
     /***********************************************************************************************
      * 页面切换操作
      */

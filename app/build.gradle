@@ -30,6 +30,7 @@ android {
     viewBinding {
         enabled = true
     }
+
 }
 
 dependencies {
@@ -54,4 +55,13 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-rxjava3:$room_version"
+
+    // PictureSelector 基础 (必须)
+    implementation 'io.github.lucksiege:pictureselector:v3.10.7'
+    // 图片压缩 (按需引入)
+    implementation 'io.github.lucksiege:compress:v3.10.7'
+    // 图片裁剪 (按需引入)
+    implementation 'io.github.lucksiege:ucrop:v3.10.7'
+    // 自定义相机 (按需引入)
+    implementation 'io.github.lucksiege:camerax:v3.10.7'
 }

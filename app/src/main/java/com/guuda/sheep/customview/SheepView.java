@@ -255,7 +255,6 @@ public class SheepView extends RelativeLayout {
                         public void onAnimationUpdate(ValueAnimator valueAnimator) {
                             float animatedValue = (float) valueAnimator.getAnimatedValue();
 
-                            Log.i("孙", "animatedValue/100: "+animatedValue/100);
                             chessView.setRotation(animatedValue/100*360);
                         }
                     });
@@ -403,7 +402,6 @@ public class SheepView extends RelativeLayout {
                         public void onAnimationEnd(Animation animation) {
                             finishNum = finishNum + 1;
                             if (finishNum == 3){   //3个动画都结束
-                                Log.i("孙", "过程1: ");
                                 if (takeinChessList.size() == 3){  //当前只有3个，无需左滑动画
                                     rlAllLayout.post(new Runnable() {
                                         @Override
@@ -425,7 +423,6 @@ public class SheepView extends RelativeLayout {
                                         }
                                     });
                                 }else {
-                                    Log.i("孙", "过程2: ");
                                     startLeftAnim(takeinChessList,mlist);
                                 }
 
@@ -453,9 +450,7 @@ public class SheepView extends RelativeLayout {
 
     private void startLeftAnim(List<ChessView> ivList,List<Integer> mlist){  //被清除的3个序号
         for (int i = 0; i < ivList.size(); i++) {
-            Log.i("孙", "过程6: ");
             if (i!=mlist.get(0)&&i!=mlist.get(1)&&i!=mlist.get(2)){
-                Log.i("孙", "过程7: ");
                 int leftDistanceNum = 0;  //左移几个棋子的距离
                 if (i>mlist.get(0)){
                     leftDistanceNum = leftDistanceNum + 1;
@@ -502,10 +497,8 @@ public class SheepView extends RelativeLayout {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                Log.i("孙", "过程5: ");
                 leftFinishNum = leftFinishNum + 1;
                 if (leftFinishNum == (ivAllList.size()-3)){  //所有左滑动画结束
-                    Log.i("孙", "过程3: ");
                     rlAllLayout.post(new Runnable() {
                         @Override
                         public void run() {
@@ -527,7 +520,6 @@ public class SheepView extends RelativeLayout {
                                 }
                             }
 
-                            Log.i("孙", "过程4: ");
                             takeinChessList = newList;
 
                             judgeCanClick(true);
