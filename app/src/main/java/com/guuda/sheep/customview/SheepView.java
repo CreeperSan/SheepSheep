@@ -44,7 +44,7 @@ public class SheepView extends RelativeLayout {
     private ImageView toolRecallView;
     private ImageView toolShuffleView;
 
-    private int grassNum = 28;  //草的数量
+    private static final int GRASS_COUNT = 28;  //草的数量
 
     private final static int CHESS_SIZE = 24;  //棋子大小的一半
     private List<ChessView> showChessList;   //棋牌区域image的list
@@ -56,7 +56,7 @@ public class SheepView extends RelativeLayout {
     private final long downDelayTime = 500;
     private final static long DURATION_CHESS_DARKEN = 500;
     private final static long DURATION_CHESS_LIGHTEN = 500;
-    private final long DURATION_TAKEIN = 40;
+    private final static long DURATION_TAKEIN = 40;
     private final long leftTime = 40;
     private final long changeTime = 600;
 
@@ -64,11 +64,12 @@ public class SheepView extends RelativeLayout {
     private final static int OFFSET_DP_QUEUE = 88;
     private final static int OFFSET_DP_BRING_OUT = 88;
 
+    private final static int GRASS_SIZE_DP = 30;
+
     private List<Double[]> locationList;  //棋子坐标列表
     private List<Integer> iconList;   //图标列表
     private List<Integer> degreeList;   //等级列表
 
-    private final List<Integer[]> mGrassLocationList;  //草坐标列表
 
     private GameProgressListener gameProgressListener;
 
@@ -83,7 +84,6 @@ public class SheepView extends RelativeLayout {
     public SheepView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
-        mGrassLocationList = new ArrayList<>();
         showChessList = new ArrayList<>();
         takeinChessList = new ArrayList<>();
         locationList = new ArrayList<>();
@@ -105,6 +105,7 @@ public class SheepView extends RelativeLayout {
         toolShuffleView = sheepLayout.findViewById(R.id.toolShuffle);
 
 
+        // 底部暂存区宽高设置
         LayoutParams layoutParams = (RelativeLayout.LayoutParams) chessBackground.getLayoutParams();
         layoutParams.width = DimensionUtils.dp2px(CHESS_SIZE *14+10);
         layoutParams.height = DimensionUtils.dp2px(CHESS_SIZE *2+10);
@@ -617,14 +618,37 @@ public class SheepView extends RelativeLayout {
     private void initGrassView(){
         grassLayout.removeAllViews();
 
-        for (int i = 0; i < grassNum; i++) {
-            addGrassLocation(mGrassLocationList, 0);
+        List<Integer[]> grassLocationList = new ArrayList<>();
+
+        for (int i = 0; i < GRASS_COUNT; i++) {
+            int loopCount = 0;
+            while (loopCount < 100) {
+                Integer[] grassLocation = {(int) (Math.round(Math.random() * DimensionUtils.getScreenW())),(int) (Math.round(Math.random() * (DimensionUtils.getScreenH() - DimensionUtils.dp2px(90))))};
+                // 计算是否重叠
+                boolean isRepeat = false;
+                for (Integer[] integers : grassLocationList) {
+                    if (
+                            Math.abs(grassLocation[0]-integers[0])< DimensionUtils.dp2px(GRASS_SIZE_DP) &&
+                            Math.abs(grassLocation[1]-integers[1])< DimensionUtils.dp2px(GRASS_SIZE_DP)
+                    ){
+                        isRepeat = true;
+                        break;
+                    }
+                }
+
+                if (!isRepeat){
+                    grassLocationList.add(grassLocation);
+                    break;
+                }
+                loopCount += 1;
+            }
         }
-        for (Integer[] integers : mGrassLocationList) {
+
+        for (Integer[] grassLocation : grassLocationList) {
             GrassView grassView = new GrassView(mContext);
-            LayoutParams layoutParams = new LayoutParams(DimensionUtils.dp2px(30), DimensionUtils.dp2px(30));
-            layoutParams.leftMargin = integers[0];
-            layoutParams.topMargin = integers[1];
+            LayoutParams layoutParams = new LayoutParams(DimensionUtils.dp2px(GRASS_SIZE_DP), DimensionUtils.dp2px(GRASS_SIZE_DP));
+            layoutParams.leftMargin = grassLocation[0];
+            layoutParams.topMargin = grassLocation[1];
             grassView.setLayoutParams(layoutParams);
             grassLayout.addView(grassView);
         }
@@ -791,28 +815,6 @@ public class SheepView extends RelativeLayout {
             repeatNum = repeatNum + 1;
             if (repeatNum <= 100){
                 addSmallLocation(list,mDegree,repeatNum);
-            }
-        }
-    }
-
-    private void addGrassLocation(List<Integer[]> list,int repeatNum){  //判断是否添加成功，如果大于100次循环就强制结束
-        Integer[] grassLocation = {(int) (Math.round(Math.random() * DimensionUtils.getScreenW())),(int) (Math.round(Math.random() * (DimensionUtils.getScreenH() - DimensionUtils.dp2px(90))))};
-        //判断是否有重复
-        boolean isRepeat = false;
-        for (Integer[] integers : list) {
-            if (Math.abs(grassLocation[0]-integers[0])< DimensionUtils.dp2px(30)
-                    &&Math.abs(grassLocation[1]-integers[1])< DimensionUtils.dp2px(30)){
-                isRepeat = true;
-                break;
-            }
-        }
-
-        if (!isRepeat){
-            list.add(grassLocation);
-        }else {
-            repeatNum = repeatNum + 1;
-            if (repeatNum <= 100){
-                addGrassLocation(list, repeatNum);
             }
         }
     }
