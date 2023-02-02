@@ -18,12 +18,15 @@ import androidx.appcompat.content.res.AppCompatResources;
 
 import com.coorchice.library.SuperTextView;
 import com.guuda.sheep.R;
+import com.guuda.sheep.activity.game.model.Chess;
 import com.guuda.sheep.activity.game.view.ChessView;
 import com.guuda.sheep.audio.AudioController;
 import com.guuda.sheep.utils.DimensionUtils;
+import com.guuda.sheep.utils.RandomIntegerGenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,26 +52,23 @@ public class SheepView extends RelativeLayout {
     private final static int CHESS_SIZE = 24;  //棋子大小的一半
     private List<ChessView> showChessList;   //棋牌区域image的list
     private List<ChessView> takeinChessList;   //收纳区image的list
-    private int MAX_DEGREE = 20;  //第二关最多层数
-    private final int MAX_CHESS_NUM = 36; //第二关 单层棋子最多数量
+    private final static int MAX_DEGREE = 20;  //第二关最多层数
+    private final static int MAX_CHESS_NUM = 36; //第二关 单层棋子最多数量
     private int degreeNum = 0;  //获取层数 (为0时，从10-MAX_DEGREE中随机获取层数,有传入用传入)
 
     private final long downDelayTime = 500;
     private final static long DURATION_CHESS_DARKEN = 500;
     private final static long DURATION_CHESS_LIGHTEN = 500;
     private final static long DURATION_TAKEIN = 40;
-    private final long leftTime = 40;
+    private final static long DURATION_QUEUE_RESORT = 40;
     private final long changeTime = 600;
 
     private final static int OFFSET_DP_GAME = 156;
-    private final static int OFFSET_DP_QUEUE = 88;
-    private final static int OFFSET_DP_BRING_OUT = 88;
 
     private final static int GRASS_SIZE_DP = 30;
 
-    private List<Double[]> locationList;  //棋子坐标列表
-    private List<Integer> iconList;   //图标列表
-    private List<Integer> degreeList;   //等级列表
+    private final List<Chess> gameChessList = new ArrayList<>();
+    private final List<Chess> queueChessList = new ArrayList<>();
 
 
     private GameProgressListener gameProgressListener;
@@ -86,9 +86,6 @@ public class SheepView extends RelativeLayout {
         mContext = context;
         showChessList = new ArrayList<>();
         takeinChessList = new ArrayList<>();
-        locationList = new ArrayList<>();
-        iconList = new ArrayList<>();
-        degreeList = new ArrayList<>();
 
         initView(context);
         initGrassView();
@@ -113,11 +110,12 @@ public class SheepView extends RelativeLayout {
     }
 
     private void initBarrier(){
-        for (int i = 0; i < iconList.size(); i++) {
+        for (int i = 0; i < gameChessList.size(); i++) {
             ChessView chessView = new ChessView(mContext);
-            locationToMargin(chessView, locationList.get(i), degreeList.get(i));
-            chessView.setChess(iconList.get(i));
-            chessView.setTag(R.id.sheepview_imageview_picrescoure,iconList.get(i));
+            Chess chess = gameChessList.get(i);
+            locationToMargin(chessView, new Double[]{ chess.x, chess.y }, chess.layer);
+            chessView.setChess(chess.type);
+            chessView.setChessModel(chess);
             chessView.setOnClickListener(new NoFastClickListener() {
                 @Override
                 protected void onSingleClick() {
@@ -183,22 +181,18 @@ public class SheepView extends RelativeLayout {
 
         showChessList.clear();
         takeinChessList.clear();
-        locationList.clear();
-        iconList.clear();
-        degreeList.clear();
+        gameChessList.clear();
 
         if (1 == barrierNum){
             initFirstLocationList();
-            initFirstBarrier();
         }else {
             initSecondLocationList();
-            initSecondBarrier();
         }
 
-        //倒序
-        Collections.reverse(locationList);
-        Collections.reverse(iconList);
-        Collections.reverse(degreeList);
+        // 重排序
+        Collections.reverse(gameChessList);
+        gameChessList.sort(Comparator.comparingInt(o -> -o.layer));
+
         initBarrier();
         judgeCanClick(false);
 
@@ -223,7 +217,7 @@ public class SheepView extends RelativeLayout {
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float animatedValue = (float) valueAnimator.getAnimatedValue();
 
-                Double[] ilocation = (Double[]) chessView.getTag(R.id.sheepview_imageview_location);
+                Double[] ilocation = chessView.getChessModel().getLocation();
 
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) chessView.getLayoutParams();
                 layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 -
@@ -251,7 +245,7 @@ public class SheepView extends RelativeLayout {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                Double[] tag = ((Double[]) chessView.getTag(R.id.sheepview_imageview_location));
+                Double[] tag = chessView.getChessModel().getLocation();
                 if (tag[1] == 17&&(tag[0] == 3||tag[0] == 9)){  //滚动放大动画
                     ValueAnimator rollValueAnimator = ValueAnimator.ofFloat(0f, 100f);
                     rollValueAnimator.setDuration(changeTime);
@@ -347,12 +341,12 @@ public class SheepView extends RelativeLayout {
                 takeinChessList.add(chessView);
                 Map<Integer,List<Integer>> mMap= new HashMap<>();  //key资源序号，list 图片在takeinChessList的位置
                 for (int i = 0; i < takeinChessList.size(); i++) {
-                    if (null == mMap.get(((int) takeinChessList.get(i).getTag(R.id.sheepview_imageview_picrescoure)))){
+                    if (null == mMap.get(( takeinChessList.get(i).getChessModel().type))){
                         List<Integer> picNumList = new ArrayList<>();
                         picNumList.add(i);
-                        mMap.put(((int) takeinChessList.get(i).getTag(R.id.sheepview_imageview_picrescoure)),picNumList);
+                        mMap.put((takeinChessList.get(i).getChessModel().type),picNumList);
                     }else {
-                        mMap.get(((int) takeinChessList.get(i).getTag(R.id.sheepview_imageview_picrescoure))).add(i);
+                        mMap.get((takeinChessList.get(i).getChessModel().type)).add(i);
                     }
                 }
 
@@ -484,7 +478,7 @@ public class SheepView extends RelativeLayout {
         float leftMargin = layoutParams.leftMargin;
 
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
-        valueAnimator.setDuration(leftTime);
+        valueAnimator.setDuration(DURATION_QUEUE_RESORT);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
 
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -553,8 +547,6 @@ public class SheepView extends RelativeLayout {
         layoutParams.topMargin = -DimensionUtils.dp2px(2* CHESS_SIZE); // 负数是实例化到界面外面，防止动画播放前被看见
         chessView.setLayoutParams(layoutParams);
 
-        chessView.setTag(R.id.sheepview_imageview_degree,mDegree);
-        chessView.setTag(R.id.sheepview_imageview_location,mLocation);
         chessView.setBackground(AppCompatResources.getDrawable(getContext(), R.drawable.bg_chessview));
         chessView.setPadding(
                 DimensionUtils.dp2px(5),
@@ -570,11 +562,11 @@ public class SheepView extends RelativeLayout {
             List<ChessView> mlist = new ArrayList<>(showChessList);
             mlist.remove(i);
 
-            Double[] ilocation = (Double[]) showChessList.get(i).getTag(R.id.sheepview_imageview_location);
-            int idegree = ((int) showChessList.get(i).getTag(R.id.sheepview_imageview_degree));
+            Double[] ilocation = showChessList.get(i).getChessModel().getLocation();
+            int idegree = showChessList.get(i).getChessModel().layer;
             for (ChessView chessView : mlist) {
-                Double[] lt = (Double[]) chessView.getTag(R.id.sheepview_imageview_location);
-                int dg = ((int) chessView.getTag(R.id.sheepview_imageview_degree));
+                Double[] lt = (Double[]) chessView.getChessModel().getLocation();
+                int dg = chessView.getChessModel().layer;
                 if (idegree > dg){
                     if (Math.abs(lt[0]-ilocation[0])<2&&Math.abs(lt[1]-ilocation[1])<2){
                         canClick = false;
@@ -599,11 +591,11 @@ public class SheepView extends RelativeLayout {
     private boolean judgeNeedToDark(ChessView iv){   //判断是否需要变暗
         boolean needDark = false;
 
-        Double[] ilocation = (Double[]) iv.getTag(R.id.sheepview_imageview_location);
-        int idegree = ((int) iv.getTag(R.id.sheepview_imageview_degree));
+        Double[] ilocation = iv.getChessModel().getLocation();
+        int idegree = iv.getChessModel().layer;
         for (ChessView chessView : showChessList) {
-            Double[] lt = (Double[]) chessView.getTag(R.id.sheepview_imageview_location);
-            int dg = ((int) chessView.getTag(R.id.sheepview_imageview_degree));
+            Double[] lt = chessView.getChessModel().getLocation();
+            int dg = chessView.getChessModel().layer;
             if (idegree > dg){
                 if (Math.abs(lt[0]-ilocation[0])<2&&Math.abs(lt[1]-ilocation[1])<2){
                     needDark = true;
@@ -667,55 +659,28 @@ public class SheepView extends RelativeLayout {
      * （3,12） （6,12） （9,12）
      */
     private void initFirstLocationList(){
+        RandomIntegerGenerator generator = new RandomIntegerGenerator(0, 15, 3);
 
-        locationList.add(new Double[] { 3.0, 4.0 });
-        locationList.add(new Double[] { 6.0 , 4.0 });
-        locationList.add(new Double[] { 9.0 , 4.0 });
-        locationList.add(new Double[] { 3.0 , 8.0 });
-        locationList.add(new Double[] { 6.0 , 8.0 });
-        locationList.add(new Double[] { 9.0 , 8.0 });
-        locationList.add(new Double[] { 3.0 , 12.0 });
-        locationList.add(new Double[] { 6.0 , 12.0 });
-        locationList.add(new Double[] { 9.0 , 12.0 });
+        gameChessList.add(new Chess(3.0, 4.0, 1, generator.next()));
+        gameChessList.add(new Chess(6.0 , 4.0, 1, generator.next()));
+        gameChessList.add(new Chess(9.0 , 4.0, 1, generator.next()));
+        gameChessList.add(new Chess(3.0 , 8.0, 1, generator.next()));
+        gameChessList.add(new Chess(6.0 , 8.0, 1, generator.next()));
+        gameChessList.add(new Chess(9.0 , 8.0, 1, generator.next()));
+        gameChessList.add(new Chess(3.0 , 12.0, 1, generator.next()));
+        gameChessList.add(new Chess(6.0 , 12.0, 1, generator.next()));
+        gameChessList.add(new Chess(9.0 , 12.0, 1, generator.next()));
 
-        locationList.add(new Double[] { 3.0 , 3.0 });
-        locationList.add(new Double[] { 6.0 , 3.0 });
-        locationList.add(new Double[] { 9.0 , 3.0 });
-        locationList.add(new Double[] { 3.0 , 7.0 });
-        locationList.add(new Double[] { 6.0 , 7.0 });
-        locationList.add(new Double[] { 9.0 , 7.0 });
-        locationList.add(new Double[] { 3.0 , 11.0 });
-        locationList.add(new Double[] { 6.0 , 11.0 });
-        locationList.add(new Double[] { 9.0 , 11.0 });
+        gameChessList.add(new Chess(3.0 , 3.0,2, generator.next()));
+        gameChessList.add(new Chess(6.0 , 3.0,2, generator.next()));
+        gameChessList.add(new Chess(9.0 , 3.0,2, generator.next()));
+        gameChessList.add(new Chess(3.0 , 7.0,2, generator.next()));
+        gameChessList.add(new Chess(6.0 , 7.0,2, generator.next()));
+        gameChessList.add(new Chess(9.0 , 7.0,2, generator.next()));
+        gameChessList.add(new Chess(3.0 , 11.0, 2, generator.next()));
+        gameChessList.add(new Chess(6.0 , 11.0, 2, generator.next()));
+        gameChessList.add(new Chess(9.0 , 11.0, 2, generator.next()));
 
-        for (int i = 0; i < 18; i++) {
-            if (i<9){
-                degreeList.add(1);
-            }else {
-                degreeList.add(2);
-            }
-        }
-    }
-
-    //第一层图片设置
-    private void initFirstBarrier(){
-        //取3个不同的随机数 选出3个icon
-        int i1 = (int) (Math.round(Math.random() * 15));
-        int i2 = (int) (Math.round(Math.random() * 15));
-        while (i2 == i1){
-            i2 = (int) (Math.round(Math.random() * 15));
-        }
-        int i3 = (int) (Math.round(Math.random() * 15));
-        while (i3 == i1||i3 == i2){
-            i3 = (int) (Math.round(Math.random() * 15));
-        }
-
-        for (int i = 0; i < 6; i++) {
-            iconList.add(i1);
-            iconList.add(i2);
-            iconList.add(i3);
-        }
-        Collections.shuffle(iconList); //打乱
     }
 
     /**
@@ -753,70 +718,54 @@ public class SheepView extends RelativeLayout {
         });
 
         //生成坐标
+        RandomIntegerGenerator generator = new RandomIntegerGenerator(0, 15, 3);
         for (int i = 0; i < degreeContentNum.size(); i++) { //每层
-            List<Double[]> everyDegreeLocationList = new ArrayList<>();
+
+            List<Chess> layerChestList = new ArrayList<>();
             for (int x = 0; x < degreeContentNum.get(i); x++) {  //每层中每个的判断
-                addSmallLocation(everyDegreeLocationList,i+1, 0);
+                int loopCount = 100;
+                while (loopCount > 0) {
+                    Double[] location = {
+                            (double) Math.round(Math.random() * 12),
+                            (double) Math.round(Math.random() * 14)
+                    };
+                    //判断是否有重复
+                    boolean isRepeat = false;
+                    for (Chess chess : layerChestList) {
+                        if (Math.abs(location[0]-chess.x)<2 && Math.abs(location[1]-chess.y)<2){
+                            isRepeat = true;
+                            break;
+                        }
+                    }
+
+                    if (!isRepeat){
+                        layerChestList.add(new Chess(location[0], location[1], i+1, generator.next()));
+                        break;
+                    }
+                    loopCount--;
+                }
+
             }
 
-//            Log.i("孙", "每层数量: "+degreeContentNum.get(i));
-            locationList.addAll(everyDegreeLocationList);
+            gameChessList.addAll(layerChestList);
         }
 
-        //必须为3的倍数 删除前几个
-        if (locationList.size()%3 !=0){
-            for (int i = 0; i < locationList.size() % 3; i++) {
-                locationList.remove(i);
-                degreeList.remove(i);
-            }
+        //必须为3的倍数 删除后几个
+        int overFlowCount = gameChessList.size() % 3;
+        while(overFlowCount-- > 0) {
+            gameChessList.remove(gameChessList.size() - 1);
         }
 
-        //第二层 底部额外的部分
-        int i = degreeNum / 3;
-        //获取底部层数
-        int bottomGegreeNum = i*3;
-        for (int x = 0; x < bottomGegreeNum; x++) {
-            locationList.add(new Double[]{3.0- (5.0)/ CHESS_SIZE *x,17.0});
-            degreeList.add(x+1);
-            locationList.add(new Double[]{9.0+ (5.0)/ CHESS_SIZE *x,17.0});
-            degreeList.add(x+1);
-        }
-    }
-
-    //第二层图片设置
-    private void initSecondBarrier(){
-        for (int i = 0; i < locationList.size() / 3; i++) {
-            int i1 = (int) (Math.round(Math.random() * 15));
-            for (int x = 0; x < 3; x++) {
-                iconList.add(i1);
-            }
-        }
-        Collections.shuffle(iconList); //打乱
-    }
-
-    private void addSmallLocation(List<Double[]> list,int mDegree,int repeatNum){  //判断是否添加成功，如果大于100次循环就强制结束
-        Double[] location = {
-                (double) Math.round(Math.random() * 12),
-                (double) Math.round(Math.random() * 14)
-        };
-        //判断是否有重复
-        boolean isRepeat = false;
-        for (Double[] integers : list) {
-            if (Math.abs(location[0]-integers[0])<2 && Math.abs(location[1]-integers[1])<2){
-                isRepeat = true;
-                break;
-            }
-        }
-
-        if (!isRepeat){
-            list.add(location);
-            degreeList.add(mDegree);
-        }else {
-            repeatNum = repeatNum + 1;
-            if (repeatNum <= 100){
-                addSmallLocation(list,mDegree,repeatNum);
-            }
-        }
+//        //第二层 底部额外的部分
+//        int i = degreeNum / 3;
+//        //获取底部层数
+//        int bottomGegreeNum = i*3;
+//        for (int x = 0; x < bottomGegreeNum; x++) {
+//            locationList.add(new Double[]{3.0- (5.0)/ CHESS_SIZE *x,17.0});
+//            degreeList.add(x+1);
+//            locationList.add(new Double[]{9.0+ (5.0)/ CHESS_SIZE *x,17.0});
+//            degreeList.add(x+1);
+//        }
     }
 
     public interface GameProgressListener {

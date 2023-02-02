@@ -16,6 +16,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 
 import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
+import com.guuda.sheep.activity.game.model.Chess;
 
 public class ChessView extends AppCompatImageView {
     public static final int STATE_GAMING = 0;
@@ -162,4 +163,17 @@ public class ChessView extends AppCompatImageView {
         startAnimation(animation);
     }
 
+
+
+
+
+    Chess chessModel;
+
+    public void setChessModel(Chess chessModel) {
+        this.chessModel = chessModel;
+    }
+
+    public Chess getChessModel() {
+        return chessModel;
+    }
 }
