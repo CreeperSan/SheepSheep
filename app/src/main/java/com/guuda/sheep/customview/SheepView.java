@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +69,6 @@ public class SheepView extends RelativeLayout {
     private final static int GRASS_SIZE_DP = 30;
 
     private final List<Chess> gameChessList = new ArrayList<>();
-    private final List<Chess> queueChessList = new ArrayList<>();
 
 
     private GameProgressListener gameProgressListener;
@@ -161,6 +161,18 @@ public class SheepView extends RelativeLayout {
         toolShuffleView.setOnClickListener(toolShuffle ? v -> {
             toolShuffle = false;
             refreshToolButton();
+
+
+            List<Integer> chessIDCacheList = new ArrayList<>();
+            for (ChessView chessView : showChessList) {
+                chessIDCacheList.add(chessView.getChess());
+            }
+            Collections.shuffle(chessIDCacheList);
+            Iterator<Integer> chessIDCacheListIterator = chessIDCacheList.iterator();
+            for (ChessView chessView : showChessList) {
+                chessView.getChessModel().type = chessIDCacheListIterator.next();
+                chessView.setChess(chessView.getChessModel().type);
+            }
         } : null);
     }
 
