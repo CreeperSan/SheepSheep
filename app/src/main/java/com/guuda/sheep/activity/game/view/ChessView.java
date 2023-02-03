@@ -123,7 +123,18 @@ public class ChessView extends AppCompatImageView {
         return chess;
     }
 
-    private void animateDark() {
+    private boolean isDark = false;
+
+    public boolean isDark() {
+        return isDark;
+    }
+
+    public void animateDark() {
+        if (isDark) {
+            return;
+        }
+        isDark = true;
+
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
         valueAnimator.setDuration(DURATION_DARKEN);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
@@ -136,7 +147,12 @@ public class ChessView extends AppCompatImageView {
         valueAnimator.start();
     }
 
-    private void animateLight() {
+    public void animateLight() {
+        if (!isDark) {
+            return;
+        }
+        isDark = false;
+
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
         valueAnimator.setDuration(DURATION_LIGHTEN);
         valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化

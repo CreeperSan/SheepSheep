@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -147,13 +148,27 @@ public class SheepView extends RelativeLayout {
         toolBringToOutsideView.setOnClickListener(toolBrightOut ? v -> {
             toolBrightOut = false;
             refreshToolButton();
+
         } : null);
 
         // 道具 - 撤回
         toolRecallView.setAlpha(toolRecall ? 1f : 0.5f);
         toolRecallView.setOnClickListener(toolRecall ? v -> {
+            if (takeinChessList.isEmpty()) {
+                return;
+            }
+
             toolRecall = false;
             refreshToolButton();
+
+            ChessView recallChessView = takeinChessList.remove(takeinChessList.size() - 1);
+            showChessList.add(recallChessView);
+
+            recallChessView.setState(ChessView.STATE_GAMING);
+
+            startDownAnim(recallChessView, 0);
+
+            judgeCanClick(false);
         } : null);
 
         // 道具 - 打乱顺序
@@ -248,69 +263,45 @@ public class SheepView extends RelativeLayout {
         valueAnimator.setStartDelay(delayTime);
         valueAnimator.start();
 
-        valueAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                Double[] tag = chessView.getChessModel().getLocation();
-                if (tag[1] == 17&&(tag[0] == 3||tag[0] == 9)){  //滚动放大动画
-                    ValueAnimator rollValueAnimator = ValueAnimator.ofFloat(0f, 100f);
-                    rollValueAnimator.setDuration(changeTime);
-                    rollValueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
-                    rollValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                            float animatedValue = (float) valueAnimator.getAnimatedValue();
-
-                            chessView.setRotation(animatedValue/100*360);
-                        }
-                    });
-                    rollValueAnimator.start();
-                }
-            }
-        });
+//        valueAnimator.addListener(new AnimatorListenerAdapter() {
+//            @Override
+//            public void onAnimationStart(Animator animation) {
+//                super.onAnimationStart(animation);
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animator animation) {
+//                super.onAnimationEnd(animation);
+//                Double[] tag = chessView.getChessModel().getLocation();
+//                if (tag[1] == 17&&(tag[0] == 3||tag[0] == 9)){  //滚动放大动画
+//                    ValueAnimator rollValueAnimator = ValueAnimator.ofFloat(0f, 100f);
+//                    rollValueAnimator.setDuration(changeTime);
+//                    rollValueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
+//                    rollValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//                        @Override
+//                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
+//                            float animatedValue = (float) valueAnimator.getAnimatedValue();
+//
+//                            chessView.setRotation(animatedValue/100*360);
+//                        }
+//                    });
+//                    rollValueAnimator.start();
+//                }
+//            }
+//        });
     }
 
+
     private void startToDarkAnim(ChessView chessView,long delayTime){
-        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
-        valueAnimator.setDuration(DURATION_CHESS_DARKEN);
-        valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
-        valueAnimator.addUpdateListener(animator -> {
-                float animatedValue = (float) animator.getAnimatedValue();
-                chessView.setForeground(AppCompatResources.getDrawable(mContext, R.drawable.fg_black_alpha70));
-                chessView.getForeground().setAlpha((int) (((double) 255)/100*animatedValue));
-        });
-        valueAnimator.setStartDelay(delayTime);
-        valueAnimator.start();
+        if (delayTime > 0) {
+            postDelayed(chessView::animateDark, delayTime);
+        } else {
+            chessView.animateDark();
+        }
     }
 
     private void startToLightAnim(ChessView chessView){
-        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
-        valueAnimator.setDuration(DURATION_CHESS_LIGHTEN);
-        valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float animatedValue = (float) valueAnimator.getAnimatedValue();
-                if (null!=chessView.getForeground()){
-                    chessView.getForeground().setAlpha((int) (255- ((double) 255)/100*animatedValue));
-                }
-            }
-        });
-
-        valueAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                chessView.setForeground(null);
-            }
-        });
-        valueAnimator.start();
+        chessView.animateLight();
     }
 
     private void startTakeinAnim(ChessView chessView){  //放大缩小后，从上方容器到下方容器 移动动画
@@ -582,12 +573,18 @@ public class SheepView extends RelativeLayout {
             if (canClick){
                 showChessList.get(i).setEnabled(true);
                 if (!onlyChangeViewClickable){
-                    if (null!=showChessList.get(i).getForeground()&&showChessList.get(i).getForeground().getAlpha() < 255){
+//                    if (null!=showChessList.get(i).getForeground()&&showChessList.get(i).getForeground().getAlpha() < 255){
+                    if (showChessList.get(i).isDark()){
                         startToLightAnim(showChessList.get(i));
                     }
                 }
             }else {
                 showChessList.get(i).setEnabled(false);
+                if (!onlyChangeViewClickable) {
+                    if (!showChessList.get(i).isDark()) {
+                        startToDarkAnim(showChessList.get(i), 0);
+                    }
+                }
             }
         }
     }
