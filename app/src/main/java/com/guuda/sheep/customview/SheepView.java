@@ -13,6 +13,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -149,6 +150,55 @@ public class SheepView extends RelativeLayout {
             toolBrightOut = false;
             refreshToolButton();
 
+
+            Iterator<ChessView> takeInChessIterator = takeinChessList.iterator();
+            int index = 0;
+            while (takeInChessIterator.hasNext() && index < 3) {
+                index++;
+                ChessView tmpChessView = takeInChessIterator.next();
+                takeInChessIterator.remove();
+
+                Chess chessModel  = tmpChessView.getChessModel();
+                chessModel.x = (index - 1) * 2;
+                chessModel.y = 17;
+                tmpChessView.setState(ChessView.STATE_GAMING);
+                showChessList.add(tmpChessView);
+
+                // 从当前位置移动至移出区域的动画
+                ValueAnimator valueAnimator = ValueAnimator.ofFloat(0f, 100f);
+                valueAnimator.setDuration(downDelayTime);
+                valueAnimator.setInterpolator(new LinearInterpolator());  //线性变化
+                valueAnimator.addUpdateListener(animator -> {
+                    float animatedValue = (float) animator.getAnimatedValue();
+
+                    Double[] ilocation = tmpChessView.getChessModel().getLocation();
+
+                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) tmpChessView.getLayoutParams();
+                    layoutParams.leftMargin = (int) (DimensionUtils.getScreenW()/2 -
+                            DimensionUtils.dp2px(14* CHESS_SIZE)/2 +
+                            DimensionUtils.dp2px(CHESS_SIZE)*ilocation[0]);
+
+                    //从屏幕上方一个棋子的位置下落，多加2*20
+                    double value1 = DimensionUtils.dp2px(OFFSET_DP_GAME) + DimensionUtils.dp2px(CHESS_SIZE) * ilocation[1];
+
+                    value1 = value1/100 *animatedValue - DimensionUtils.dp2px(2* CHESS_SIZE);
+                    layoutParams.topMargin = (int) value1;
+                    tmpChessView.setLayoutParams(layoutParams);
+                });
+                valueAnimator.setStartDelay(0);
+                valueAnimator.start();
+            }
+            // 把队列内的动画移动至前方
+            int moveCount = index;
+            while (takeInChessIterator.hasNext()) {
+                ChessView tmpChessView = takeInChessIterator.next();
+                Chess chess = tmpChessView.getChessModel();
+                chess.x -= moveCount;
+
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) tmpChessView.getLayoutParams();
+                layoutParams.leftMargin = layoutParams.leftMargin - DimensionUtils.dp2px(CHESS_SIZE * moveCount) * 2;
+                tmpChessView.setLayoutParams(layoutParams);
+            }
         } : null);
 
         // 道具 - 撤回

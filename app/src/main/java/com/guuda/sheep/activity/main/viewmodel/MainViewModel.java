@@ -1,7 +1,9 @@
 package com.guuda.sheep.activity.main.viewmodel;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -107,7 +109,7 @@ public class MainViewModel extends ViewModel {
 
     private Disposable loginDisposable;
 
-    public void login(String username, String password) {
+    public void login(String username, String password, Context context) {
         // 防止重复登录
         if (loginDisposable != null && !loginDisposable.isDisposed()) {
             loginDisposable.dispose();
@@ -121,6 +123,8 @@ public class MainViewModel extends ViewModel {
         }, throwable -> {
             loginDisposable = null;
             throwable.printStackTrace();
+
+            Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }
 

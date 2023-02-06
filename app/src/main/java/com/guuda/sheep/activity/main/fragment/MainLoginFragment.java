@@ -47,7 +47,7 @@ public class MainLoginFragment extends BaseMainFragment<MainLoginViewState> {
                 String usernameStr = binding.usernameET.getText().toString().trim();
                 String passwordStr = binding.passwordET.getText().toString().trim();
 
-                viewModel.login(usernameStr, passwordStr);
+                viewModel.login(usernameStr, passwordStr, getContext());
             }
         });
 
