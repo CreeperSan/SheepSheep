@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#cffb99">
+    android:background="#c3fe8b">
 
     <RelativeLayout
         android:id="@+id/grassLayout"

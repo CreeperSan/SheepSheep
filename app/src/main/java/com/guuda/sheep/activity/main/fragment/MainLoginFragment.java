@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
 import com.guuda.sheep.activity.main.viewmodel.MainViewModel;
 import com.guuda.sheep.activity.main.viewstate.MainLoginViewState;
@@ -62,6 +63,9 @@ public class MainLoginFragment extends BaseMainFragment<MainLoginViewState> {
 
         // 设置按钮
         binding.head.settingBtn.setVisibility(View.GONE);
+
+        //
+        Glide.with(binding.sheepIv).asGif().load(R.mipmap.ic_award_sheep1).into(binding.sheepIv);
 
         PrefManager.instance.addMuteChangeListener(mutePrefListener);
     }

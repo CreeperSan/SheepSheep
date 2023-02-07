@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="#cffb99"
+    android:background="#c3fe8b"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -17,14 +17,14 @@
         android:id="@+id/titleTV"
         android:paddingStart="26dp"
         android:paddingEnd="26dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:textSize="18sp"
+        android:textSize="24sp"
         android:textColor="@color/white"
-        android:background="@drawable/selector_menu_button"
+        android:background="@drawable/bg_game_time"
         android:text="- 1月1日 -"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

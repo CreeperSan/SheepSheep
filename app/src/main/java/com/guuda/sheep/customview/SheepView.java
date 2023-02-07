@@ -46,6 +46,7 @@ public class SheepView extends RelativeLayout {
     private RelativeLayout rlAllLayout;
     private RelativeLayout grassLayout;
     private SuperTextView chessBackground;
+    private ImageView fenceView;
     private ImageView toolBringToOutsideView;
     private ImageView toolRecallView;
     private ImageView toolShuffleView;
@@ -99,6 +100,7 @@ public class SheepView extends RelativeLayout {
         rlAllLayout = sheepLayout.findViewById(R.id.rl_alllayout);
         grassLayout = sheepLayout.findViewById(R.id.grassLayout);
         chessBackground = sheepLayout.findViewById(R.id.stv_container);
+        fenceView = sheepLayout.findViewById(R.id.fenceView);
         toolBringToOutsideView = sheepLayout.findViewById(R.id.toolBringToOutside);
         toolRecallView = sheepLayout.findViewById(R.id.toolRecall);
         toolShuffleView = sheepLayout.findViewById(R.id.toolShuffle);
@@ -109,6 +111,11 @@ public class SheepView extends RelativeLayout {
         layoutParams.width = DimensionUtils.dp2px(CHESS_SIZE *14+10);
         layoutParams.height = DimensionUtils.dp2px(CHESS_SIZE *2+10);
         chessBackground.setLayoutParams(layoutParams);
+
+        // 栅栏 View
+        LayoutParams fenceViewLayoutParams = (RelativeLayout.LayoutParams) fenceView.getLayoutParams();
+        fenceViewLayoutParams.height = DimensionUtils.dp2px(CHESS_SIZE *2 + 30);
+        fenceView.setLayoutParams(fenceViewLayoutParams);
     }
 
     private void initBarrier(){

@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rl_alllayout"
+    android:clipChildren="false"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -25,48 +26,57 @@
         app:stv_stroke_color="#b8843e"
         app:stv_stroke_width="5dp"/>
 
+    <ImageView
+        android:src="@mipmap/bg_queue"
+        android:id="@+id/fenceView"
+        android:scaleType="fitXY"
+        android:layout_width="wrap_content"
+        android:layout_height="68dp"
+        android:paddingStart="-2dp"
+        android:paddingEnd="-2dp"
+        android:paddingBottom="-20dp"
+        android:layout_marginTop="-6dp"
+        android:layout_alignTop="@id/stv_container"
+        android:layout_alignStart="@id/stv_container"
+        android:layout_alignEnd="@id/stv_container"
+        android:layout_centerHorizontal="true"/>
+
     <LinearLayout
         android:id="@+id/toolLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="12dp">
 
         <ImageView
             android:id="@+id/toolBringToOutside"
-            android:layout_width="96dp"
-            android:layout_height="42dp"
-            android:background="#6666FF"
+            android:layout_width="60dp"
+            android:layout_height="46dp"
             android:clickable="true"
             android:contentDescription="@null"
             android:focusable="true"
-            android:padding="6dp"
-            android:src="@drawable/ic_item_bring_to_outside" />
+            android:src="@mipmap/img_tool_bring_out" />
 
         <ImageView
             android:id="@+id/toolRecall"
-            android:layout_width="96dp"
-            android:layout_height="42dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:background="#6666FF"
+            android:layout_width="60dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginEnd="36dp"
             android:clickable="true"
             android:contentDescription="@null"
             android:focusable="true"
-            android:padding="6dp"
-            android:src="@drawable/ic_item_recall" />
+            android:src="@mipmap/img_tool_recall" />
 
         <ImageView
             android:id="@+id/toolShuffle"
-            android:layout_width="96dp"
-            android:layout_height="42dp"
-            android:background="#6666FF"
+            android:layout_width="60dp"
+            android:layout_height="46dp"
             android:clickable="true"
             android:contentDescription="@null"
             android:focusable="true"
-            android:padding="6dp"
-            android:src="@drawable/ic_item_shuffle" />
+            android:src="@mipmap/img_tool_shuffle" />
 
     </LinearLayout>
 

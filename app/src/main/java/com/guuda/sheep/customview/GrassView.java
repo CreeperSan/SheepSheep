@@ -41,18 +41,12 @@ public class GrassView extends AppCompatImageView {
         super(context, attrs, defStyle);
 
         @DrawableRes int imageRes;
-        switch ((int) (Math.round(Math.random() * 3))) {
+        switch ((int) (Math.round(Math.random() * 1))) {
             case 1:
-                imageRes = R.mipmap.ic_grass2;
-                break;
-            case 2:
-                imageRes = R.mipmap.ic_grass3;
-                break;
-            case 3:
-                imageRes = R.mipmap.ic_grass4;
+                imageRes = R.mipmap.ic_grass_new_01;
                 break;
             default:
-                imageRes = R.mipmap.ic_grass1;
+                imageRes = R.mipmap.ic_grass_new_02;
         }
 
         Glide.with(this).load(imageRes).into(this);

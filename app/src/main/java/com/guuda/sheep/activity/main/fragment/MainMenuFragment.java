@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.guuda.sheep.R;
 import com.guuda.sheep.activity.main.dialog.MainProfileDialog;
 import com.guuda.sheep.activity.game.dialog.GameSettingDialog;
 import com.guuda.sheep.activity.main.viewmodel.MainViewModel;
@@ -69,6 +70,8 @@ public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
                 viewModel.toLogin();
             }
         });
+
+        Glide.with(binding.sheepIv).asGif().load(R.mipmap.ic_award_sheep1).into(binding.sheepIv);
 
         binding.head.userBtn.setVisibility(View.VISIBLE);
         binding.head.userBtn.setOnClickListener(v -> {
