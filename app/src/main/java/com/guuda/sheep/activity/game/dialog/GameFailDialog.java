@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.View;
 
 import com.guuda.sheep.R;
 import com.guuda.sheep.databinding.DialogFailBinding;
@@ -12,7 +11,7 @@ import com.guuda.sheep.databinding.DialogFailBinding;
 
 public class GameFailDialog extends Dialog {
     private DialogFailBinding binding;
-    private View.OnClickListener mNextLevelListener;
+    private GameFailActionListener mListener;
 
 
     public GameFailDialog(Context context) {
@@ -30,20 +29,28 @@ public class GameFailDialog extends Dialog {
         setCancelable(false);
         setCanceledOnTouchOutside(false);
 
-        binding.btnOne.setOnClickListener(v -> {
+        binding.btnRestart.setOnClickListener(v -> {
             dismiss();
+            mListener.onRestart();
         });
 
-        setOnDismissListener(dialog -> {
-            if (mNextLevelListener == null) {
-                return;
-            }
-            mNextLevelListener.onClick(binding.getRoot());
+        binding.btnExit.setOnClickListener(v -> {
+            dismiss();
+            mListener.onGiveUp();
         });
+
     }
 
-    public void setOnBackListener(View.OnClickListener listener) {
-        mNextLevelListener = listener;
+    public void setOnDialogEventListener(GameFailActionListener listener) {
+        mListener = listener;
+    }
+
+    public interface GameFailActionListener {
+
+        void onRestart();
+
+        void onGiveUp();
+
     }
 
 }

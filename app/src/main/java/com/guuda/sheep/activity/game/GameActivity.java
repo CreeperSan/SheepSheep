@@ -160,9 +160,16 @@ public class GameActivity extends AppCompatActivity {
         });
 
         dialogFail = new GameFailDialog(this);
-        dialogFail.setOnBackListener(v -> {
-            dialogPass.dismiss();
-            binding.sheepView.loadLevel(level, DEFAULT_DEGREE_NUM);
+        dialogFail.setOnDialogEventListener(new GameFailDialog.GameFailActionListener() {
+            @Override
+            public void onRestart() {
+                binding.sheepView.loadLevel(level, DEFAULT_DEGREE_NUM);
+            }
+
+            @Override
+            public void onGiveUp() {
+                finish();
+            }
         });
 
         dialogComplete = new GameCompleteDialog(this);

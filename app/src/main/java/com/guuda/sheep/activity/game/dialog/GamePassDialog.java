@@ -34,7 +34,7 @@ public class GamePassDialog extends Dialog {
         setCancelable(false);
         setCanceledOnTouchOutside(false);
 
-        binding.btnOne.setOnClickListener(v -> {
+        binding.btnNextLevel.setOnClickListener(v -> {
             dismiss();
         });
 
