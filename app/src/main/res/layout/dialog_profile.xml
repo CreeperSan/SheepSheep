@@ -8,8 +8,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:background="@color/black"
-        android:padding="16dp">
+        android:paddingTop="56dp"
+        android:paddingBottom="56dp"
+        android:paddingStart="36dp"
+        android:paddingEnd="36dp"
+        android:background="@drawable/bg_dialog_game">
 
         <ImageView
             android:scaleType="centerCrop"
@@ -27,13 +30,13 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:text="名字："
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintStart_toEndOf="@id/avatarIV"
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:id="@+id/nameET"
             android:layout_width="144dp"
             android:layout_height="wrap_content"
@@ -48,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="生日："
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintTop_toBottomOf="@id/nameLabelTV"
             app:layout_constraintStart_toStartOf="@id/nameLabelTV"/>
@@ -58,7 +61,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="6月19日"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintTop_toTopOf="@id/birthdayLabelTV"
             app:layout_constraintBottom_toBottomOf="@id/birthdayLabelTV"
@@ -71,7 +74,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="地区："
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintTop_toBottomOf="@id/birthdayLabelTV"
             app:layout_constraintStart_toStartOf="@id/nameLabelTV"/>
@@ -81,7 +84,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="广东"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintTop_toTopOf="@id/locationLabelTV"
             app:layout_constraintBottom_toBottomOf="@id/locationLabelTV"
@@ -128,11 +131,12 @@
 
 
     <ImageView
+        android:padding="8dp"
         android:id="@+id/closeBtn"
         android:layout_gravity="top|end"
-        android:background="#FF00FF"
+        android:background="@drawable/bg_dialog_close"
         android:src="@drawable/ic_close_white_24"
-        android:layout_width="32dp"
-        android:layout_height="32dp"/>
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
 
 </FrameLayout>

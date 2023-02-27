@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
 import com.guuda.sheep.databinding.DialogSucceedBinding;
 
@@ -27,6 +28,8 @@ public class GameCompleteDialog extends Dialog {
 
         setCancelable(false);
         setCanceledOnTouchOutside(false);
+
+        Glide.with(binding.sheepView).load(R.mipmap.ic_award_sheep4).into(binding.sheepView);
 
         binding.backBtn.setOnClickListener(v -> {
             dismiss();

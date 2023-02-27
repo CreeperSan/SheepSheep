@@ -3,12 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:gravity="center"
+    android:paddingTop="56dp"
+    android:paddingBottom="56dp"
+    android:paddingStart="26dp"
+    android:paddingEnd="26dp"
+    android:background="@drawable/bg_dialog_game"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/titleTV"
-        android:layout_marginTop="86dp"
         android:paddingBottom="12dp"
         android:paddingTop="12dp"
         android:paddingStart="36dp"
@@ -23,6 +27,7 @@
         android:layout_height="wrap_content"/>
 
     <LinearLayout
+        android:visibility="gone"
         android:layout_marginTop="56dp"
         android:gravity="center"
         android:orientation="horizontal"
@@ -62,9 +67,8 @@
     </LinearLayout>
 
     <View
-        android:layout_weight="1"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"/>
+        android:layout_height="120dp"/>
 
     <TextView
         android:id="@+id/resumeBtn"
@@ -114,9 +118,5 @@
         android:textColor="@color/white"
         android:textSize="20sp"/>
 
-    <View
-        android:layout_weight="1"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"/>
 
 </LinearLayout>
