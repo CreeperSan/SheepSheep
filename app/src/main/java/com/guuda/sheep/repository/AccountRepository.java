@@ -32,7 +32,12 @@ public class AccountRepository {
      * @return
      */
     public static Observable<UserInfo> login(String username, String password) {
-        return Observable.just(0).observeOn(SheepSchedulers.database).concatMap(val -> {
+        return Observable.just(0).observeOn(SheepSchedulers.database).map(val -> {
+            if (username.isEmpty() || password.isEmpty()) {
+                throw new AccountException("请输入账号和密码");
+            }
+            return val;
+        }).concatMap(val -> {
             // 检查登录信息
             return DatabaseManager.instance.findAccount(username, password);
         }).map(accountNullable -> {

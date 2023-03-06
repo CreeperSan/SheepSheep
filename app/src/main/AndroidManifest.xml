@@ -47,10 +47,6 @@
             android:name="com.guuda.sheep.activity.game.GameActivity"
             android:screenOrientation="portrait"/>
 
-        <activity
-            android:name="com.guuda.sheep.SettingActivity"
-            android:screenOrientation="portrait"/>
-
     </application>
 
 </manifest>

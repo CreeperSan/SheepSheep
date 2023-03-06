@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.guuda.sheep.R;
-import com.guuda.sheep.SettingActivity;
 import com.guuda.sheep.activity.game.dialog.GameFailDialog;
 import com.guuda.sheep.activity.game.dialog.GameSettingDialog;
 import com.guuda.sheep.activity.main.receiver.GameLevelNotifyListener;
@@ -141,15 +140,6 @@ public class GameActivity extends AppCompatActivity {
 
     private void initTitle(){
         refreshTimeText();
-
-        binding.titleTV.setOnClickListener(new NoFastClickListener() {
-            @Override
-            protected void onSingleClick() {
-                if (level == 2){
-                    startActivity(new Intent(GameActivity.this, SettingActivity.class));
-                }
-            }
-        });
     }
 
     private void initDialog() {

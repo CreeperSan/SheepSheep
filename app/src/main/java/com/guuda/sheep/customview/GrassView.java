@@ -66,8 +66,6 @@ public class GrassView extends AppCompatImageView {
         super.onAttachedToWindow();
 
         if (animator != null) {
-//            setPivotY(getMeasuredHeight());
-//            setPivotY(getMeasuredHeight());
             animator.start();
         }
     }
