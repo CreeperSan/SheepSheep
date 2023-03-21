@@ -39,7 +39,12 @@ public class MainViewModel extends ViewModel {
     }
 
     public void refreshUserInfo() {
-        Disposable disposable = AccountRepository.getUserInfo().subscribe(userInfo -> {
+        UserInfo tmpUserInfo = currentUserInfo.getValue();
+        if (tmpUserInfo == null) {
+            return;
+        }
+
+        Disposable disposable = AccountRepository.getUserInfo(tmpUserInfo.username).subscribe(userInfo -> {
             UserInfo tmpInfo = userInfo.obj;;
             if (tmpInfo == null) {
                 return;

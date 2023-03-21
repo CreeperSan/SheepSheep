@@ -121,13 +121,25 @@ public class MainMenuFragment extends BaseMainFragment<MainMenuViewState> {
                 }
 
                 @Override
-                public void onSave(String avatar, String name, long birthdayTimestamp, String location) {
+                public void onSave(String srcFilePath, String name, long birthdayTimestamp, String location) {
                     Disposable disposable = Observable.just(0).concatMap(v -> {
 
-                        File file = new File(context.getFilesDir().getAbsolutePath() + "/" + userInfo.id + ".jpg");
-                        FileUtils.copyPath(context, avatar, file.getAbsolutePath());
+                        File dstFile = new File(context.getFilesDir().getAbsolutePath() + "/" + userInfo.id + ".jpg");
+                        File srcFile = new File(srcFilePath);
 
-                        return AccountRepository.updateAvatar(userInfo.username, file.getAbsolutePath());
+                        // 如果源图片不存在，则不需要更新
+                        if (!srcFile.exists() || srcFile.isDirectory()) {
+                            return AccountRepository.getUserInfo(userInfo.username);
+                        }
+
+                        // 如果头像地址一致，则说明没有改变，不需要处理
+                        if (srcFile.getAbsolutePath().equals(dstFile.getAbsolutePath())) {
+                            return AccountRepository.getUserInfo(userInfo.username);
+                        }
+
+                        FileUtils.copyPath(context, srcFile.getAbsolutePath(), dstFile.getAbsolutePath());
+
+                        return AccountRepository.updateAvatar(userInfo.username, dstFile.getAbsolutePath());
                     }).concatMap(v -> {
                         return AccountRepository.updateNickname(userInfo.username, name);
                     }).concatMap(v -> {

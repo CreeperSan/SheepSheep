@@ -6,6 +6,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.DatePicker;
 
@@ -62,11 +63,11 @@ public class MainProfileDialog extends BaseDialog {
         binding.closeBtn.setOnClickListener(v -> {
             dismiss();
         });
-
+        Log.e("TAG", "initView: avatar=" + avatarPath );
         Glide.with(binding.avatarIV)
                 .load(BitmapFactory.decodeFile(avatarPath))
-                .placeholder(R.drawable.ic_face_white_24)
-                .error(R.drawable.ic_face_white_24)
+                .placeholder(R.drawable.ic_face_black_24)
+                .error(R.drawable.ic_face_black_24)
                 .apply(new RequestOptions().circleCrop())
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -132,10 +133,11 @@ public class MainProfileDialog extends BaseDialog {
 
 
 
+        Log.e("TAG", "initView: avatar=" + avatarPath );
         Glide.with(binding.avatarIV)
                 .load(BitmapFactory.decodeFile(avatarPath))
-                .placeholder(R.drawable.ic_face_white_24)
-                .error(R.drawable.ic_face_white_24)
+                .placeholder(R.drawable.ic_face_black_24)
+                .error(R.drawable.ic_face_black_24)
                 .apply(new RequestOptions().circleCrop())
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)

@@ -41,7 +41,7 @@ public class DatabaseManager {
 
 
     public Observable<Boolean> init() {
-        return getUserInfoDao().delay(1000, TimeUnit.MILLISECONDS).map(user -> {
+        return getUserInfoDao().delay(0, TimeUnit.MILLISECONDS).map(user -> {
             return true;
         }).observeOn(SheepSchedulers.ui);
     }

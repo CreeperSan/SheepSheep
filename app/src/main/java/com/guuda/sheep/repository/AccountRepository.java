@@ -16,13 +16,11 @@ public class AccountRepository {
     private AccountRepository() { }
 
     /**
-     * 获取上一次登录的账号业务流程
+     * 获取指定用户信息
      * @return
      */
-    public static Observable<NullableObj<UserInfo>> getUserInfo() {
-        return Observable.just(0).observeOn(SheepSchedulers.database).map(integer -> {
-            return new NullableObj<UserInfo>(null);
-        }).observeOn(SheepSchedulers.ui);
+    public static Observable<NullableObj<UserInfo>> getUserInfo(String username) {
+        return DatabaseManager.instance.findAccount(username);
     }
 
     /**
